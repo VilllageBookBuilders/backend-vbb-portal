@@ -44,7 +44,7 @@ class Command(BaseCommand):
             today
         )
 
-    def addStudent(self, userId, cursor):
+    def addStudent(self, userId):
         return (
             today,
             today,
@@ -63,6 +63,18 @@ class Command(BaseCommand):
             uuid.uuid4(),
             userId
         )
+
+    def genClassRoom(self, school_id):
+        return (
+            today,
+            today,
+            'FALSE',
+            uuid.uuid4,
+            fake,
+            school_id
+        )
+
+
     def handle(self, *args, **options):
         # Open conection
         conn = psycopg2.connect("dbname=vbb user=postgres")
@@ -71,15 +83,29 @@ class Command(BaseCommand):
         hm_from, hm_to = 1, 11
         std_from, std_to = 11,211
 
-        
-        if True:
-            tables = [
-                'users_user',
-                'users_headmaster'
-            ]
-            for i in tables:
-                cur.execute('TRUNCATE TABLE %s CASCADE;', [i])
-                cur.execute('ALTER SEQUENCE %s_id_seq  RESTART WITH 1', [i])
+        #DB RESET
+        #Truncate users_user
+        cur.execute('TRUNCATE TABLE users_user CASCADE;')
+        cur.execute('ALTER SEQUENCE users_user_id_seq  RESTART WITH 1')
+        #Truncate users_headmaster
+        cur.execute('TRUNCATE TABLE users_headmaster CASCADE;')
+        cur.execute('ALTER SEQUENCE users_headmaster_id_seq  RESTART WITH 1')
+        #Truncate program_clasroom
+        cur.execute('TRUNCATE TABLE program_clasroom CASCADE;')
+        cur.execute('ALTER SEQUENCE program_clasroom_id_seq  RESTART WITH 1')
+        #Insert 10 Classrooms
+
+        psycopg2.extras.execute_values(cur,
+        """INSERT INTO program_clasroom (
+        created_date,
+        modified_date,
+        deleted,
+        external_id,
+        name,
+        school_id
+        ) VALUES %s
+        """,
+        [self.addHeadmaster(i) for i in range(hm_from, hm_to)])
 
         # Insert 10 Headmasters
         psycopg2.extras.execute_values(cur,
@@ -126,54 +152,54 @@ class Command(BaseCommand):
         ) VALUES %s
         """,
         [self.addHeadmaster(i) for i in range(hm_from, hm_to)])
-        # conn.commit()
+        conn.commit()
         # Insert 200 Students
 
-        # psycopg2.extras.execute_values(cur,
-        # """INSERT INTO users_user (
-        # password,	
-        # last_login,	
-        # is_superuser,	
-        # username,	
-        # first_name,	
-        # last_name,	
-        # email,	
-        # is_staff,	
-        # is_active,	
-        # date_joined,	
-        # user_type,	
-        # verification_level,	
-        # vbb_chapter,	
-        # primary_language,	
-        # time_zone,	
-        # initials,	
-        # personal_email,	
-        # phone,	
-        # occupation,	
-        # referral_source,	
-        # city,	
-        # notes,	
-        # created_date,	
-        # deleted,	
-        # external_id,	
-        # modified_date,	
-        # date_of_birth
-        # ) VALUES %s
-        # """,
-        # [self.genUser(200) for i in range(10,200)])
+        psycopg2.extras.execute_values(cur,
+        """INSERT INTO users_user (
+        password,	
+        last_login,	
+        is_superuser,	
+        username,	
+        first_name,	
+        last_name,	
+        email,	
+        is_staff,	
+        is_active,	
+        date_joined,	
+        user_type,	
+        verification_level,	
+        vbb_chapter,	
+        primary_language,	
+        time_zone,	
+        initials,	
+        personal_email,	
+        phone,	
+        occupation,	
+        referral_source,	
+        city,	
+        notes,	
+        created_date,	
+        deleted,	
+        external_id,	
+        modified_date,	
+        date_of_birth
+        ) VALUES %s
+        """,
+        [self.genUser(100) for i in range(std_from, std_to)])
 
-        # psycopg2.extras.execute_values(cur,
-        # """INSERT INTO users_student (
-        # created_date,
-        # modified_date,
-        # deleted,
-        # external_id,
-        # user_id,
-        # classroom_id,
-        # school_level
-        # ) VALUES %s
-        # """,
-        # [self.genStudent(i, dict_cur) for i in range(12,13)])
+        psycopg2.extras.execute_values(cur,
+        """INSERT INTO users_student (
+        created_date,
+        modified_date,
+        deleted,
+        external_id,
+        user_id,
+        classroom_id,
+        school_level
+        ) VALUES %s
+        """,
+        [self.addStudent(i) for i in range(std_from, std_to)])
 
 
         # Commit changes to live DB
