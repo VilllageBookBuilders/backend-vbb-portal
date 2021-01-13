@@ -1,209 +1,168 @@
 from faker import Faker
 from django.core.management.base import BaseCommand, CommandError
-import psycopg2
-from django.core.serializers.json import DjangoJSONEncoder
-import pprint
+from pprint import pprint
 import datetime
-import random
-import uuid
+from uuid import uuid4
+from vbb_backend.users.models import *
+from vbb_backend.program.models import *
+import datetime
+import pytz
 fake = Faker()
-today = datetime.datetime.today()
-
+today = pytz.utc.localize(datetime.datetime.utcnow())
+import psycopg2
 
 class Command(BaseCommand):
+
     def genUser(self, user_type):
-        # print('generated user')
         fakeProfile = fake.simple_profile()
-        return (
-            'password',
-            today,
-            'FALSE',
-            fakeProfile['username'],
-            fakeProfile['name'].split()[0],
-            fakeProfile['name'].split()[1],
-            fake.email(),
-            'TRUE',
-            'TRUE',
-            today,
-            user_type,
-            '1',
-            'vbbchapter',
-            fake.language_name(),
-            fake.timezone(),
-            fakeProfile['name'].split()[0][0] + fakeProfile['name'].split()[1][0],
-            fake.free_email(),
-            fake.phone_number(),
-            fake.paragraph(nb_sentences=1),
-            fake.paragraph(nb_sentences=1),
-            fake.city(),
-            fake.paragraph(nb_sentences=1),
-            today,
-            'FALSE',
-            uuid.uuid4(),
-            today,
-            today
+        new_user = User.objects.create(
+            password='password',
+            last_login=today,
+            is_superuser=False,
+            username=fakeProfile['username'],
+            first_name=fakeProfile['name'].split()[0],
+            last_name=fakeProfile['name'].split()[1],
+            email=fake.email(),
+            is_staff=True,
+            is_active=True,
+            date_joined=today,
+            user_type=user_type,
+            verification_level='1',
+            vbb_chapter='vbbchapter',
+            primary_language=fake.language_name(),
+            time_zone=fake.timezone(),
+            initials=fakeProfile['name'].split()[0][0] + fakeProfile['name'].split()[1][0],
+            personal_email=fake.free_email(),
+            phone=fake.phone_number(),
+            occupation=fake.paragraph(nb_sentences=1),
+            referral_source=fake.paragraph(nb_sentences=1),
+            city=fake.city(),
+            notes=fake.paragraph(nb_sentences=1),
+            created_date=today,
+            deleted=False,
+            external_id=uuid4(),
+            modified_date=today,
+            date_of_birth=today
         )
 
-    def addStudent(self, userId):
-        return (
-            today,
-            today,
-            'FALSE',
-            uuid.uuid4(),
-            userId,
-            1,
-            2
+
+        return 
+
+    def genStudent(self, userId, classroom_id, school_level):
+        Student.objects.create(
+            created_date=today,
+            modified_date=today,
+            deleted=False,
+            external_id=uuid4(),
+            user_id=userId,
+            classroom_id=classroom_id,
+            school_level=school_level
         )
 
-    def addHeadmaster(self, userId):
-        return (
-            today,
-            today,
-            'FALSE',
-            uuid.uuid4(),
-            userId
+    def genProgram(self, program_director_id):
+        Program.objects.create(
+            created_date=today,
+            modified_date=today,
+            deleted=False,
+            external_id=uuid4(),
+            name=fake.city()+'  education program',
+            time_zone=fake.timezone(),
+            calendar_id=None,
+            whatsapp_group=None,
+            announcements_group=None,
+            collaboration_group=None,
+            village_info_link=None,
+            default_language=fake.language_name(),
+            program_director_id=program_director_id
         )
-
-    def genClassRoom(self, school_id):
-        return (
-            today,
-            today,
-            'FALSE',
-            uuid.uuid4,
-            fake,
-            school_id
+    def genSchool(self, program_id):
+        lat,lon=fake.latlng()
+        School.objects.create(
+            created_date=today,
+            modified_date=today,
+            deleted=False,
+            external_id=uuid4(),
+            name=fake.company(),
+            longitude=lon,
+            latitude=lat,
+            program_id=program_id
+        )
+    def genClassroom(self, school_id):
+        Classroom.objects.create(
+            created_date=today,
+            modified_date=today,
+            deleted=False,
+            external_id=uuid4(),
+            name=fake.company(),
+            school_id=school_id
+        )
+    def genMentor(self, user_id):
+        Mentor.objects.create(
+            created_date=today,
+            modified_date=today,
+            deleted=False,
+            external_id=uuid4(),
+            user_id=user_id,
+            address=fake.address(),
+            affiliation=None,
+            charged=None,
+            desired_involvement=None,
+            is_adult=None
         )
 
 
     def handle(self, *args, **options):
-        # Open conection
+        # Connect to an existing database
         conn = psycopg2.connect("dbname=vbb user=postgres")
+
+        # Open a cursor to perform database operations
         cur = conn.cursor()
-        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        hm_from, hm_to = 1, 11
-        std_from, std_to = 11,211
-
-        #DB RESET
-        #Truncate users_user
-        cur.execute('TRUNCATE TABLE users_user CASCADE;')
-        cur.execute('ALTER SEQUENCE users_user_id_seq  RESTART WITH 1')
-        #Truncate users_headmaster
-        cur.execute('TRUNCATE TABLE users_headmaster CASCADE;')
-        cur.execute('ALTER SEQUENCE users_headmaster_id_seq  RESTART WITH 1')
-        #Truncate program_clasroom
-        cur.execute('TRUNCATE TABLE program_clasroom CASCADE;')
-        cur.execute('ALTER SEQUENCE program_clasroom_id_seq  RESTART WITH 1')
-        #Insert 10 Classrooms
-
-        psycopg2.extras.execute_values(cur,
-        """INSERT INTO program_clasroom (
-        created_date,
-        modified_date,
-        deleted,
-        external_id,
-        name,
-        school_id
-        ) VALUES %s
-        """,
-        [self.addHeadmaster(i) for i in range(hm_from, hm_to)])
-
-        # Insert 10 Headmasters
-        psycopg2.extras.execute_values(cur,
-        """INSERT INTO users_user (
-        password,	
-        last_login,	
-        is_superuser,	
-        username,	
-        first_name,	
-        last_name,	
-        email,	
-        is_staff,	
-        is_active,	
-        date_joined,	
-        user_type,	
-        verification_level,	
-        vbb_chapter,	
-        primary_language,	
-        time_zone,	
-        initials,	
-        personal_email,	
-        phone,	
-        occupation,	
-        referral_source,	
-        city,	
-        notes,	
-        created_date,	
-        deleted,	
-        external_id,	
-        modified_date,	
-        date_of_birth
-        ) VALUES %s
-        """,
-        [self.genUser(600) for i in range(hm_from, hm_to)])
+        # Truncate DB
+        Program.objects.all().delete()
+        User.objects.all().delete()
+        School.objects.all().delete()
+        Classroom.objects.all().delete()
+        Student.objects.all().delete()
+        Mentor.objects.all().delete()
+        #Restart Sequences
+        cur.execute("ALTER SEQUENCE program_program_id_seq RESTART WITH 1")
+        cur.execute("ALTER SEQUENCE users_user_id_seq RESTART WITH 1")
+        cur.execute("ALTER SEQUENCE program_school_id_seq RESTART WITH 1")
+        cur.execute("ALTER SEQUENCE program_classroom_id_seq RESTART WITH 1")
+        cur.execute("ALTER SEQUENCE users_student_id_seq RESTART WITH 1")
+        cur.execute("ALTER SEQUENCE users_mentor_id_seq RESTART WITH 1")
         conn.commit()
-
-        psycopg2.extras.execute_values(cur,
-        """INSERT INTO users_headmaster (
-        created_date,
-        modified_date,
-        deleted,
-        external_id,
-        user_id
-        ) VALUES %s
-        """,
-        [self.addHeadmaster(i) for i in range(hm_from, hm_to)])
-        conn.commit()
-        # Insert 200 Students
-
-        psycopg2.extras.execute_values(cur,
-        """INSERT INTO users_user (
-        password,	
-        last_login,	
-        is_superuser,	
-        username,	
-        first_name,	
-        last_name,	
-        email,	
-        is_staff,	
-        is_active,	
-        date_joined,	
-        user_type,	
-        verification_level,	
-        vbb_chapter,	
-        primary_language,	
-        time_zone,	
-        initials,	
-        personal_email,	
-        phone,	
-        occupation,	
-        referral_source,	
-        city,	
-        notes,	
-        created_date,	
-        deleted,	
-        external_id,	
-        modified_date,	
-        date_of_birth
-        ) VALUES %s
-        """,
-        [self.genUser(100) for i in range(std_from, std_to)])
-
-        psycopg2.extras.execute_values(cur,
-        """INSERT INTO users_student (
-        created_date,
-        modified_date,
-        deleted,
-        external_id,
-        user_id,
-        classroom_id,
-        school_level
-        ) VALUES %s
-        """,
-        [self.addStudent(i) for i in range(std_from, std_to)])
-
-
-        # Commit changes to live DB
-        conn.commit()
-        # Close connection
         cur.close()
         conn.close()
+        # #Insert user-headmaster
+        for i in range(10):
+            self.genUser(600)
+        # Insert user-student
+        for i in range(200):
+            self.genUser(100)
+        # Insert user-mentor
+        for i in range(50):
+            self.genUser(200)
+        #Insert Program
+        headmaster_id = User.objects.filter(user_type=600)[0].id
+        self.genProgram(headmaster_id)
+        #Insert school
+        program_id = Program.objects.all()[0].id
+        self.genSchool(program_id)
+        #Insert Classroom
+        school_id = School.objects.all()[0].id
+        self.genClassroom(school_id)
+        #Insert Students
+        Croom = Classroom.objects.all()[0] #Classroom Objet
+        students = User.objects.filter(user_type=100)
+        for i in students:
+            userId, classroom_id, school_id = i.id, Croom.id, Croom.school_id
+            self.genStudent(userId, classroom_id, school_id)
+        #Insert Mentors
+        mentors = User.objects.filter(user_type=200)
+        for i in mentors:
+            self.genMentor(i.id)
+            
+        # pprint(user)
+        # Commit changes to live DB
+        # Close connection
