@@ -12,7 +12,7 @@ today = pytz.utc.localize(datetime.datetime.utcnow())
 import psycopg2
 
 class Command(BaseCommand):
-
+    #This function generates and inserts Users into db
     def genUser(self, user_type):
         fakeProfile = fake.simple_profile()
         new_user = User.objects.create(
@@ -47,7 +47,7 @@ class Command(BaseCommand):
 
 
         return 
-
+    #This function generates and inserts Students into db
     def genStudent(self, userId, classroom_id, school_level):
         Student.objects.create(
             created_date=today,
@@ -58,7 +58,7 @@ class Command(BaseCommand):
             classroom_id=classroom_id,
             school_level=school_level
         )
-
+    #This function generates and inserts the program into db
     def genProgram(self, program_director_id):
         Program.objects.create(
             created_date=today,
@@ -75,6 +75,7 @@ class Command(BaseCommand):
             default_language=fake.language_name(),
             program_director_id=program_director_id
         )
+    #This function generates and inserts school into db
     def genSchool(self, program_id):
         lat,lon=fake.latlng()
         School.objects.create(
@@ -87,6 +88,7 @@ class Command(BaseCommand):
             latitude=lat,
             program_id=program_id
         )
+    #This function generates and inserts classroom into db
     def genClassroom(self, school_id):
         Classroom.objects.create(
             created_date=today,
@@ -96,6 +98,7 @@ class Command(BaseCommand):
             name=fake.company(),
             school_id=school_id
         )
+    #This function generates and inserts Mentoors into db
     def genMentor(self, user_id):
         Mentor.objects.create(
             created_date=today,
@@ -124,7 +127,7 @@ class Command(BaseCommand):
         Classroom.objects.all().delete()
         Student.objects.all().delete()
         Mentor.objects.all().delete()
-        #Restart Sequences
+        #Restart Sequences could not find a Django oriented solution to this also it is not necesary is for ease of use
         cur.execute("ALTER SEQUENCE program_program_id_seq RESTART WITH 1")
         cur.execute("ALTER SEQUENCE users_user_id_seq RESTART WITH 1")
         cur.execute("ALTER SEQUENCE program_school_id_seq RESTART WITH 1")
@@ -162,7 +165,3 @@ class Command(BaseCommand):
         mentors = User.objects.filter(user_type=200)
         for i in mentors:
             self.genMentor(i.id)
-            
-        # pprint(user)
-        # Commit changes to live DB
-        # Close connection
