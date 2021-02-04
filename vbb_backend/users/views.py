@@ -8,6 +8,7 @@ class VBBLogin(LoginView): # accessed from .../api/v1/auth/token, accepts token 
     client_class = OAuth2Client
 
     def post(request):
+        # TODO: verify token with oauth
         # user =  id_token.verify_oauth2_token(request.token) # send token field to OAuth to retrieve user
         return get_refresh_token(user) # send to function to generate token
 
