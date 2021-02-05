@@ -16,12 +16,12 @@ def calcPerc(total, current):
     return 0 if current == 0 else (current*100)//total
 
 def verbose(*args, end='\n'):
-    if (True):
+    if (False):
         for i in args:
             print(i, end=end)
 # Script Variables
 
-NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS = 1000
+NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS = 1
 NUM_OF_MENTORS = NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS * 12
 NUM_OF_CLASSROOMS = NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS * 3
 NUM_OF_STUDENTS = NUM_OF_CLASSROOMS * 25
@@ -133,7 +133,7 @@ class Command(BaseCommand):
     
     def exceptionHandlingLoop(self, callback, amount, paramForCallback=None):
             toGenerate, IntE, DataE, UniqE, operations,totalErrors = 0,0,0,0,0,0
-            
+            print(f"Executing {callback.__name__}")
             while toGenerate < amount:
                 try:
                     operations+=1
@@ -171,6 +171,7 @@ class Command(BaseCommand):
             DataErrFinString = f"\n\tDataError: {DataE:,} | {calcPerc(operations, DataE)}% of operations"
             ErrRateFinString = f"\n\tTotal Errors: {totalErrors:,} {calcPerc(operations, totalErrors)}% of operations\n"
             verbose(ExecFinStr + IntFinString + UniqFinString + DataErrFinString + ErrRateFinString)
+            print(f"Done with {callback.__name__}")
 
     def hardResetdb(self):
         conn = psycopg2.connect("dbname=vbb user=postgres")
@@ -194,9 +195,41 @@ class Command(BaseCommand):
         conn.commit()
         cur.close()
         conn.close()
+
+    def softResetdb(self):
+        # Truncate DB
+        p =  Program.objects.all()
+        for i in p:
+            i.deleted = True
+        Program.objects.bulk_update(p, ['deleted'])\
+
+        u = User.objects.all()
+        for i in u:
+            i.deleted = True
+        User.objects.bulk_update(u, ['deleted'])
+
+        s = School.objects.all()
+        for i in s:
+            i.deleted = True
+        School.objects.bulk_update(s, ['deleted'])
+
+        c = Classroom.objects.all()
+        for i in c:
+            i.deleted = True
+        Classroom.objects.bulk_update(c, ['deleted'])
+
+        stu = Student.objects.all()
+        for i in stu:
+            i.deleted = True
+        Student.objects.bulk_update(stu, ['deleted'])
+
+        m = Mentor.objects.all()
+        for i in m:
+            i.deleted = True
+        Mentor.objects.bulk_update(m, ['deleted'])
     
     def handle(self, *args, **options):
-        self.hardResetdb()
+        self.softResetdb()
         # Insert user-headmaster
         self.exceptionHandlingLoop(self.genUser, NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS, 600)
         # # Insert user-student
