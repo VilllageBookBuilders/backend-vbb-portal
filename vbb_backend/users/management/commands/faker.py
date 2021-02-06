@@ -16,7 +16,7 @@ def calcPerc(total, current):
     return 0 if current == 0 else (current*100)//total
 
 def verbose(*args, end='\n'):
-    if (False):
+    if (True):
         for i in args:
             print(i, end=end)
 # Script Variables
@@ -30,7 +30,7 @@ class Command(BaseCommand):
     def genUser(self, user_type, amount=1):
         fn = fake.first_name()
         ln = fake.last_name()
-        new_user = User.objects.create(
+        new_user = User(
             password='password',
             last_login=today,
             is_superuser=False,
@@ -59,6 +59,9 @@ class Command(BaseCommand):
             modified_date=today,
             date_of_birth=today
         )
+
+        new_user.set_password('password')
+        new_user.save()
         return new_user
 
     #This function generates and inserts Students into db
@@ -138,8 +141,9 @@ class Command(BaseCommand):
                 try:
                     operations+=1
                     if (type(paramForCallback) is list):
-                        result = callback(paramForCallback.pop(fake.random_int(0, len(paramForCallback)-1)))
-                        # print(result)
+                        # This next line is here just to handle the special case when the string has only one item inside
+                        rand_choice = paramForCallback.pop(fake.random_int(0, len(paramForCallback)-1)) if len(paramForCallback) > 1 else paramForCallback[0]
+                        result = callback(rand_choice)
                     elif (paramForCallback):
                         result = callback(paramForCallback)
                     else:
@@ -229,7 +233,8 @@ class Command(BaseCommand):
         Mentor.objects.bulk_update(m, ['deleted'])
     
     def handle(self, *args, **options):
-        self.softResetdb()
+        self.hardResetdb()
+        # self.softResetdb()
         # Insert user-headmaster
         self.exceptionHandlingLoop(self.genUser, NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS, 600)
         # # Insert user-student
