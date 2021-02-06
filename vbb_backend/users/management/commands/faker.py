@@ -12,6 +12,16 @@ fake = Faker()
 today = pytz.utc.localize(datetime.datetime.utcnow())
 import psycopg2
 
+# Script Variables
+NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS = 10
+NUM_OF_MENTORS = NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS * 12
+NUM_OF_CLASSROOMS = NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS * 3
+NUM_OF_STUDENTS = NUM_OF_CLASSROOMS * 25
+TOTAL_OPERATIONS_LEFT = NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS*3 + NUM_OF_MENTORS*2 + NUM_OF_CLASSROOMS + NUM_OF_STUDENTS*2
+global SUCCESFULL_OPERATIONS
+SUCCESFULL_OPERATIONS = 0
+
+
 def calcPerc(total, current):
     return 0 if current == 0 else (current*100)//total
 
@@ -19,12 +29,8 @@ def verbose(*args, end='\n'):
     if (True):
         for i in args:
             print(i, end=end)
-# Script Variables
 
-NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS = 1
-NUM_OF_MENTORS = NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS * 12
-NUM_OF_CLASSROOMS = NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS * 3
-NUM_OF_STUDENTS = NUM_OF_CLASSROOMS * 25
+
 class Command(BaseCommand):
     #This function generates and inserts Users into db
     def genUser(self, user_type, amount=1):
@@ -136,7 +142,7 @@ class Command(BaseCommand):
     
     def exceptionHandlingLoop(self, callback, amount, paramForCallback=None):
             toGenerate, IntE, DataE, UniqE, operations,totalErrors = 0,0,0,0,0,0
-            print(f"Executing {callback.__name__}")
+            global SUCCESFULL_OPERATIONS
             while toGenerate < amount:
                 try:
                     operations+=1
@@ -163,7 +169,8 @@ class Command(BaseCommand):
                         raise exc
                 else:
                     toGenerate+=1
-                    Exec = f"Executing {callback.__name__} #{operations:,} | {calcPerc(amount,toGenerate)}% | "
+                    SUCCESFULL_OPERATIONS +=1
+                    Exec = f" {calcPerc(TOTAL_OPERATIONS_LEFT,SUCCESFULL_OPERATIONS)}% |Executing {callback.__name__} #{operations:,} | {calcPerc(amount,toGenerate)}% | "
                     IntegrityString = f"IntegrityError: {IntE:,} {calcPerc(operations, IntE)}%  "
                     UniqueString = f"UniquenessException: {UniqE:,} {calcPerc(operations, UniqE)}%  "
                     dataErrString = f"DataError: {DataE:,} {calcPerc(operations, DataE)}%  "
@@ -179,62 +186,122 @@ class Command(BaseCommand):
 
     def hardResetdb(self):
         conn = psycopg2.connect("dbname=vbb user=postgres")
-
+        totalRowsAffected = 0
         # Open a cursor to perform database operations
         cur = conn.cursor()
         # Truncate DB
-        Program.objects.all().delete()
-        User.objects.all().delete()
-        School.objects.all().delete()
-        Classroom.objects.all().delete()
-        Student.objects.all().delete()
-        Mentor.objects.all().delete()
+        verbose('Beginning Database reset type HARD')
+
+        # Delete programs
+        verbose('Deleting Programs...', end=' ')
+        
+        rowsAffected = Program.objects.all().delete()[0]# .delete() return "(n, {})" where n is total rows affected
+        totalRowsAffected += rowsAffected
+        verbose(f'Done Affected {rowsAffected} rows.')
+
+        # Delete Users
+        verbose('Deleting Users...', end=' ')
+        rowsAffected = User.objects.all().delete()[0]# .delete() return "(n, {})" where n is total rows affected
+        totalRowsAffected += rowsAffected
+        verbose(f'Done Affected {rowsAffected} rows.')
+
+        # Delete Schools
+        verbose('Deleting School...', end=' ')
+        rowsAffected = School.objects.all().delete()[0]# .delete() return "(n, {})" where n is total rows affected
+        totalRowsAffected += rowsAffected
+        verbose(f'Done Affected {rowsAffected} rows.')
+
+        # Delete Classroom
+        verbose('Deleting Classrooms...', end=' ')
+        rowsAffected = Classroom.objects.all().delete()[0]# .delete() return "(n, {})" where n is total rows affected
+        totalRowsAffected += rowsAffected
+        verbose(f'Done Affected {rowsAffected} rows.')
+
         #Restart Sequences could not find a Django oriented solution to this also it is not necesary is for ease of use
+        verbose('Reseting Id sequence for the following tables')
         cur.execute("ALTER SEQUENCE program_program_id_seq RESTART WITH 1")
+        verbose('program_program')
         cur.execute("ALTER SEQUENCE users_user_id_seq RESTART WITH 1")
+        verbose('users_user')
         cur.execute("ALTER SEQUENCE program_school_id_seq RESTART WITH 1")
+        verbose('program_school')
         cur.execute("ALTER SEQUENCE program_classroom_id_seq RESTART WITH 1")
+        verbose('program_classroom')
         cur.execute("ALTER SEQUENCE users_student_id_seq RESTART WITH 1")
+        verbose('users_student')
         cur.execute("ALTER SEQUENCE users_mentor_id_seq RESTART WITH 1")
+        verbose('users_mentor')
         conn.commit()
+        verbose('Commiting changes')
         cur.close()
+        verbose('Closing connections')
         conn.close()
+        verbose(f'******  Hard reset complete, rows affected {totalRowsAffected}   ********')
 
     def softResetdb(self):
+        rowsAffected = 0
+        verbose('Beginning Database reset type SOFT')
         # Truncate DB
-        p =  Program.objects.all()
+
+        # Delete programs
+        verbose('Deleting Programs...', end=' ')
+        p =  Program.objects.filter(deleted=False)
+        rowsAffected += len(p)
         for i in p:
             i.deleted = True
-        Program.objects.bulk_update(p, ['deleted'])\
+        Program.objects.bulk_update(p, ['deleted'])
+        verbose(f'Done {len(p)} rows affected.')
 
-        u = User.objects.all()
+        # Delete Users
+        verbose('Deleting Users...', end=' ')
+        u = User.objects.filter(deleted=False)
+        rowsAffected += len(u)
         for i in u:
             i.deleted = True
         User.objects.bulk_update(u, ['deleted'])
+        verbose(f'Done {len(u)} rows affected.')
 
-        s = School.objects.all()
+        # Delete Schools
+        verbose('Deleting School...', end=' ')
+        s = School.objects.filter(deleted=False)
+        rowsAffected += len(s)
         for i in s:
             i.deleted = True
         School.objects.bulk_update(s, ['deleted'])
+        verbose(f'Done {len(s)} rows affected.')
 
-        c = Classroom.objects.all()
+        # Delete Classroom
+        verbose('Deleting Classrooms...', end=' ')
+        c = Classroom.objects.filter(deleted=False)
+        rowsAffected += len(c)
         for i in c:
             i.deleted = True
         Classroom.objects.bulk_update(c, ['deleted'])
+        verbose(f'Done {len(c)} rows affected.')
 
-        stu = Student.objects.all()
+        # Delete Students
+        verbose('Deleting Students...', end=' ')
+        stu = Student.objects.filter(deleted=False)
+        rowsAffected += len(stu)
         for i in stu:
             i.deleted = True
         Student.objects.bulk_update(stu, ['deleted'])
+        verbose(f'Done {len(stu)} rows affected.')
 
-        m = Mentor.objects.all()
+        # Delete Mentors
+        verbose('Deleting Mentors...', end=' ')
+        m = Mentor.objects.filter(deleted=False)
+        rowsAffected += len(m)
         for i in m:
             i.deleted = True
         Mentor.objects.bulk_update(m, ['deleted'])
-    
+        verbose(f'Done {len(m)} rows affected.')
+        verbose(f'******  Soft reset complete, rows affected {rowsAffected}   ********')
+
     def handle(self, *args, **options):
-        self.hardResetdb()
-        # self.softResetdb()
+        # Choose between a hard or soft resset -for debugging porpuses only
+        self.softResetdb() if False else self.hardResetdb()
+
         # Insert user-headmaster
         self.exceptionHandlingLoop(self.genUser, NUM_OF_HEADMASTERS_AND_PROGRAMS_AND_SCHOOLS, 600)
         # # Insert user-student
