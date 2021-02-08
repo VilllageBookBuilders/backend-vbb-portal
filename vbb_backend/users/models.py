@@ -75,7 +75,7 @@ class User(AbstractUser, BaseUUIDModel):
     def is_verified(self):
         return self.verification_level == self.VerificationLevelEnum.VERIFIED.value
 
-
+#dynamic questions, surveying for questions that don't need to be embedded in a model, for later usage
 class UserQuestionareQuestions(QuestionareQuestions):
     user_type = models.IntegerField(
         choices=UserTypeChoices, default=None, null=True, blank=True
@@ -102,6 +102,7 @@ class Student(BaseUUIDModel):
         User,
         on_delete=models.CASCADE,
     )
+    #change to school
     classroom = models.ForeignKey(
         Classroom,
         on_delete=models.PROTECT,
@@ -110,6 +111,8 @@ class Student(BaseUUIDModel):
     )
     school_level = models.IntegerField()
 
+    #add models to this.
+    
     @staticmethod
     def has_create_permission(request):
         school = School.objects.get(
