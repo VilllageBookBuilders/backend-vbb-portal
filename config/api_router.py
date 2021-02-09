@@ -8,7 +8,7 @@ from vbb_backend.program.api.viewsets.computer import ComputerViewSet
 from vbb_backend.program.api.viewsets.program import ProgramViewSet
 from vbb_backend.program.api.viewsets.school import SchoolViewSet
 from vbb_backend.program.api.viewsets.slot import SlotViewSet
-from vbb_backend.program.api.viewsets.student_slot import StudentSlotViewSet
+from vbb_backend.program.api.viewsets.slotStudent import StudentSlotViewSet
 from vbb_backend.users.api.viewsets.student import StudentViewSet
 
 if settings.DEBUG:
