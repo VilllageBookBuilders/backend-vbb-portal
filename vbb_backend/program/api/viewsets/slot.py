@@ -45,15 +45,3 @@ class SlotViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(computer=self.get_computer())
-
-    @swagger_auto_schema(responses={200: SessionRuleSerializer()})
-    @action(detail=True, methods=["get"])
-    def mentor(self, request, pk):
-        slot = self.get_object()
-        rule_object = SessionRule.objects.filter(slot=slot)
-        if rule_object.exists():
-            return Response(
-                SessionRuleSerializer(rule_object.order_by("-start").latest()).data
-            )
-        else:
-            return Response({"mentor": "Not Found"}, status=status.HTTP_404_NOT_FOUND)

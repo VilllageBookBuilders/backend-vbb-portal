@@ -8,6 +8,7 @@ from vbb_backend.program.api.viewsets.computer import ComputerViewSet
 from vbb_backend.program.api.viewsets.program import ProgramViewSet
 from vbb_backend.program.api.viewsets.school import SchoolViewSet
 from vbb_backend.program.api.viewsets.slot import SlotViewSet
+from vbb_backend.program.api.viewsets.slotMentor import MentorSlotViewSet
 from vbb_backend.program.api.viewsets.slotStudent import StudentSlotViewSet
 from vbb_backend.users.api.viewsets.student import StudentViewSet
 
@@ -36,6 +37,8 @@ computer_nested_router.register(r"slot", SlotViewSet)
 slot_nested_router = NestedSimpleRouter(computer_nested_router, r"slot", lookup="slot")
 
 slot_nested_router.register(r"student", StudentSlotViewSet)
+
+slot_nested_router.register(r"mentor", MentorSlotViewSet)
 
 
 school_nested_router = NestedSimpleRouter(
