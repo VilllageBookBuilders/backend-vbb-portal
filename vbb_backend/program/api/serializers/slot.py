@@ -2,6 +2,8 @@ from rest_framework import serializers
 from datetime import datetime, timedelta
 from vbb_backend.program.models import Slot
 from rest_framework.exceptions import ValidationError
+from vbb_backend.program.api.serializers.slotMentor import MentorSlotSerializer
+from vbb_backend.program.api.serializers.slotStudent import StudentSlotListSerializer
 
 
 class SlotSerializer(serializers.ModelSerializer):
@@ -34,6 +36,11 @@ class SlotSerializer(serializers.ModelSerializer):
         min_value=0, max_value=59, help_text="0-59 Minutes, Convert Time to UTC First"
     )
     max_students = serializers.IntegerField(min_value=0)
+
+    mentors = MentorSlotSerializer(source="slot_to_mentor", many=True, read_only=True)
+    students = StudentSlotListSerializer(
+        source="slot_to_student", many=True, read_only=True
+    )
 
     def validate(self, attrs):
         start_day_of_week = attrs.pop("start_day_of_the_week")

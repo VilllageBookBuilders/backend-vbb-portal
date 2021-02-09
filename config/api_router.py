@@ -44,11 +44,12 @@ school_nested_router = NestedSimpleRouter(
 
 school_nested_router.register(r"classroom", ClassroomViewSet)
 
+school_nested_router.register(r"student", StudentViewSet)
+
+
 classroom_nested_router = NestedSimpleRouter(
     school_nested_router, r"classroom", lookup="classroom"
 )
-
-classroom_nested_router.register(r"student", StudentViewSet)
 
 app_name = "api"
 

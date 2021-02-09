@@ -32,7 +32,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        exclude = ("deleted", "classroom")
+        exclude = ("deleted", "school")
 
     def validate(self, attrs):
         user = attrs["user"]

@@ -127,7 +127,7 @@ class School(BaseUUIDModel):  # LATER keep track of student attendance, and grad
         return self.has_object_write_permission(request)
 
 
-class Classroom(BaseUUIDModel):
+class Classroom(BaseUUIDModel):  # DEPRECATED
     """
     This model is a basic representation of a classroom in the schools that VBB serves.
 
@@ -311,6 +311,9 @@ class Slot(BaseUUIDModel):
     is_mentor_assigned = models.BooleanField(default=False)
     is_student_assigned = models.BooleanField(default=False)
 
+    students = models.ManyToManyField("users.Student", through="StudentSlotAssociation")
+    mentors = models.ManyToManyField("users.Mentor", through="MentorSlotAssociation")
+
     def save(self, *args, **kwargs):
 
         if Slot.objects.filter(
@@ -376,5 +379,54 @@ class StudentSlotAssociation(BaseUUIDModel):
     This connects the student user object with a Slot Object
     """
 
-    student = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
-    slot = models.ForeignKey(Slot, on_delete=models.SET_NULL, null=True)
+    student = models.ForeignKey(
+        "users.Student",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="student_slot",
+    )
+    slot = models.ForeignKey(
+        Slot, on_delete=models.SET_NULL, null=True, related_name="slot_student"
+    )
+    priority = models.IntegerField(default=0)  # 0 is the highest priority
+
+    @staticmethod
+    def has_create_permission(request):
+        program = Program.objects.get(
+            external_id=request.parser_context["kwargs"]["program_external_id"]
+        )
+        return request.user.is_superuser or request.user == program.program_director
+
+    @staticmethod
+    def has_write_permission(request):
+        return True
+
+    @staticmethod
+    def has_read_permission(request):
+        return True  # User Queryset Filtering Here
+
+    def has_object_write_permission(self, request):
+        return (
+            request.user.is_superuser
+            or request.user == self.slot.computer.program.program_director
+        )
+
+    def has_object_update_permission(self, request):
+        return self.has_object_write_permission(request)
+
+    def has_object_read_permission(self, request):
+        return self.has_object_write_permission(request)
+
+
+class MentorSlotAssociation(BaseUUIDModel):
+    """
+    This connects the student user object with a Slot Object
+    """
+
+    mentor = models.ForeignKey(
+        "users.Mentor", on_delete=models.SET_NULL, null=True, related_name="mentor_slot"
+    )
+    slot = models.ForeignKey(
+        Slot, on_delete=models.SET_NULL, null=True, related_name="slot_mentor"
+    )
+    priority = models.IntegerField(default=0)  # 0 is the highest priority

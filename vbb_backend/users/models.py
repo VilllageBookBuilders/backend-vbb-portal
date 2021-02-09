@@ -21,7 +21,7 @@ class UserTypeEnum(enum.Enum):
 
 UserTypeChoices = [(e.value, e.name) for e in UserTypeEnum]
 
-from vbb_backend.program.models import Classroom, School, LanguageChoices, TIMEZONES
+from vbb_backend.program.models import School, LanguageChoices, TIMEZONES
 
 
 class User(AbstractUser, BaseUUIDModel):
@@ -75,7 +75,8 @@ class User(AbstractUser, BaseUUIDModel):
     def is_verified(self):
         return self.verification_level == self.VerificationLevelEnum.VERIFIED.value
 
-#dynamic questions, surveying for questions that don't need to be embedded in a model, for later usage
+
+# dynamic questions, surveying for questions that don't need to be embedded in a model, for later usage
 class UserQuestionareQuestions(QuestionareQuestions):
     user_type = models.IntegerField(
         choices=UserTypeChoices, default=None, null=True, blank=True
@@ -102,17 +103,18 @@ class Student(BaseUUIDModel):
         User,
         on_delete=models.CASCADE,
     )
-    #change to school
-    classroom = models.ForeignKey(
-        Classroom,
+    # change to school
+    school = models.ForeignKey(
+        School,
         on_delete=models.PROTECT,
         null=False,
         blank=False,
     )
-    school_level = models.IntegerField()
+    school_level = models.IntegerField()  # -1 for graduated , -2 for dropout
+    group_name = models.CharField(max_length=256)
 
-    #add models to this.
-    
+    # add models to this.
+
     @staticmethod
     def has_create_permission(request):
         school = School.objects.get(
@@ -133,7 +135,7 @@ class Student(BaseUUIDModel):
     def has_object_write_permission(self, request):
         return (
             request.user.is_superuser
-            or request.user == self.classroom.school.program.program_director
+            or request.user == self.school.program.program_director
         )
 
     def has_object_update_permission(self, request):
