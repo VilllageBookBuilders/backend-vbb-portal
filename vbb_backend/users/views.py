@@ -12,14 +12,18 @@ class VBBLogin(View): # accessed from .../api/v1/auth/token, accepts token and r
         if token != '':
             auth_url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + str(token)
             token_info = requests.get(auth_url)
-            email = token_info.json['email']
-            users = User.objects.filter(personal_email = email)
+            email = token_info.json().get('email', '')
 
-            if len(users) == 1:
-                return get_refresh_token(users[0]) # send to function to generate token
+            if email != '':
+                users = User.objects.filter(personal_email = email)
+
+                if len(users) == 1:
+                    return get_refresh_token(users[0]) # send to function to generate token
+                else:
+                    return HttpResponse('Error: no user associated with email') 
+                # TODO: handle case of either no user associated with email or multiple users associated with email
             else:
-                return HttpResponse('Error: no user associated with email') 
-            # TODO: handle case of either no user associated with email or multiple users associated with email
+                return HttpResponse('Error: no email associated with auth token')
         
         # TODO: handle case where no auth token is posted
 
