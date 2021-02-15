@@ -9,8 +9,6 @@ from rest_framework.viewsets import ModelViewSet
 
 from vbb_backend.program.api.serializers.slot import SlotSerializer
 from vbb_backend.program.models import Computer, Program, Slot
-from vbb_backend.session.api.serializer.sessionrule import SessionRuleSerializer
-from vbb_backend.session.models import SessionRule
 from vbb_backend.users.models import UserTypeEnum
 
 from drf_yasg.utils import swagger_auto_schema
