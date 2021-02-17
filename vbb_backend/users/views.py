@@ -7,7 +7,7 @@ import requests
 
 class VBBLogin(View): # accessed from .../api/v1/auth/token, accepts token and returns JWT
     def post(self, request):
-
+        #return HttpResponse(add_test_user()) 
         token = request.POST.get('google_access_token','')
         if token != '':
             auth_url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + str(token)
@@ -15,10 +15,10 @@ class VBBLogin(View): # accessed from .../api/v1/auth/token, accepts token and r
             email = token_info.json().get('email', '')
 
             if email != '':
-                users = User.objects.filter(personal_email = email)
+                users = User.objects.filter(personal_email = "1234@gmail.com")
 
                 if len(users) == 1:
-                    return get_refresh_token(users[0]) # send to function to generate token
+                    return HttpResponse(get_refresh_token(users[0])) # send to function to generate token
                 else:
                     return HttpResponse('Error: no user associated with email') 
                 # TODO: handle case of either no user associated with email or multiple users associated with email
@@ -35,3 +35,10 @@ def get_refresh_token(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token), # lifetime should be specified in settings already
     }
+
+def add_test_user():
+        newUser = User()
+        newUser.personal_email = "1234@gmail.com"
+        newUser.save()
+        return "saved user"
+        
