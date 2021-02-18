@@ -3,6 +3,7 @@ from rest_framework import serializers
 from vbb_backend.program.models import MentorSlotAssociation
 from vbb_backend.users.models import Mentor
 from vbb_backend.users.api.serializers.user import UserBareMinimumSerializer
+from rest_framework.exceptions import ValidationError
 
 
 class MentorSlotBaseSerializer(serializers.ModelSerializer):

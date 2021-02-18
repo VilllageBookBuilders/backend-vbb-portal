@@ -29,7 +29,9 @@ class MentorSlotViewSet(ModelViewSet):
         return queryset
 
     def get_slot(self):
-        return get_object_or_404(Slot, external_id=self.kwargs.get("slot_external_id"))
+        return get_object_or_404(
+            self.get_queryset(), external_id=self.kwargs.get("slot_external_id")
+        )
 
     def perform_create(self, serializer):
         serializer.save(slot=self.get_slot())
