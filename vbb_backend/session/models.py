@@ -26,10 +26,16 @@ class Session(BaseUUIDModel):
     An Asyncronous task will populate the required sessions from the SessionRule
     """
 
+    slot = models.ForeignKey(
+        Slot, on_delete=models.SET_NULL, null=True
+    )  # Represents the Connected Slot
     notes = models.TextField(default=None, null=True, blank=True)
     start = models.DateTimeField()  # All Date Times in UTC
     end = models.DateTimeField()  # All Date Times in UTC
-    # TODO: do we no longer need an "is_student_confirmed" field?
+    students = models.ManyToManyField(
+        "users.Student", through="StudentSessionAssociation"
+    )
+    mentors = models.ManyToManyField("users.Mentor", through="MentorSessionAssociation")
 
 
 class StudentSessionAssociation(BaseUUIDModel):

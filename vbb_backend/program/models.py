@@ -430,3 +430,4 @@ class MentorSlotAssociation(BaseUUIDModel):
         Slot, on_delete=models.SET_NULL, null=True, related_name="slot_mentor"
     )
     priority = models.IntegerField(default=0)  # 0 is the highest priority
+    is_confirmed = models.BooleanField(default=False) # This is only editable by the program director or above
