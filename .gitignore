@@ -277,3 +277,6 @@ vbb_backend/media/
 .env
 .envs/*
 .vscode/settings.json
+
+## Service-account
+.vbb_backend/service-account.json
