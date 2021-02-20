@@ -15,7 +15,7 @@ class VBBLogin(View): # accessed from .../api/v1/auth/token, accepts token and r
             email = token_info.json().get('email', '')
 
             if email != '':
-                users = User.objects.filter(personal_email = "1234@gmail.com")
+                users = User.objects.filter(personal_email = email)
 
                 if len(users) == 1:
                     return HttpResponse(get_refresh_token(users[0])) # send to function to generate token
