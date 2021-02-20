@@ -40,3 +40,15 @@ class ProgramSerializer(serializers.ModelSerializer):
                 )
             attrs["program_director"] = product_director_obj
         return super().validate(attrs)
+
+
+class MinimalProgramSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(source="external_id", read_only=True)
+    program_director = serializers.UUIDField(write_only=True, allow_null=False)
+    program_director_obj = UserBareMinimumSerializer(
+        source="program_director", read_only=True
+    )
+
+    class Meta:
+        model = Program
+        exclude = ("deleted", "external_id")

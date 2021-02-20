@@ -7,7 +7,7 @@ from vbb_backend.program.api.viewsets.classroom import ClassroomViewSet
 from vbb_backend.program.api.viewsets.computer import ComputerViewSet
 from vbb_backend.program.api.viewsets.program import ProgramViewSet
 from vbb_backend.program.api.viewsets.school import SchoolViewSet
-from vbb_backend.program.api.viewsets.slot import SlotViewSet
+from vbb_backend.program.api.viewsets.slot import ReadOnlySlotViewSet, SlotViewSet
 from vbb_backend.program.api.viewsets.slotMentor import MentorSlotViewSet
 from vbb_backend.program.api.viewsets.slotStudent import StudentSlotViewSet
 from vbb_backend.users.api.viewsets.student import StudentViewSet
@@ -17,6 +17,8 @@ if settings.DEBUG:
 else:
     router = SimpleRouter()
 
+
+router.register("slot", ReadOnlySlotViewSet)
 
 router.register("program", ProgramViewSet)
 
