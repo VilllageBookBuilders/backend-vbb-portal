@@ -46,3 +46,27 @@ class MentorSlotSerializer(MentorSlotListSerializer):
                 )
             attrs["program_director"] = mentor_obj
         return super().validate(attrs)
+
+
+class MentorSlotBookingSerializer(MentorSlotListSerializer):
+    id = serializers.UUIDField(source="external_id", read_only=True)
+    mentor = serializers.UUIDField(write_only=True, allow_null=False)
+
+    class Meta:
+        model = MentorSlotAssociation
+        exclude = ("deleted", "slot", "external_id", "is_confirmed", "priority")
+
+    def validate(self, attrs):
+        # Clean up Attributes based on what the user can access
+
+        if "mentor" in attrs:
+            mentor = attrs.pop("mentor")
+            mentor_obj = Mentor.objects.filter(external_id=mentor).first()
+            if not mentor_obj:
+                raise ValidationError(
+                    {
+                        "mentor": "Does not Exist. Are you sure the supplied value is a valid UUID"
+                    }
+                )
+            attrs["program_director"] = mentor_obj
+        return super().validate(attrs)
