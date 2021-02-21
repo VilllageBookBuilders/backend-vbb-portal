@@ -9,13 +9,14 @@ from vbb_backend.program.api.viewsets.program import ProgramViewSet
 from vbb_backend.program.api.viewsets.school import SchoolViewSet
 from vbb_backend.program.api.viewsets.slot import ReadOnlySlotViewSet, SlotViewSet
 from vbb_backend.program.api.viewsets.slotMentor import (
-    MentorSlotViewSet,
     MentorBookingViewSet,
+    MentorSlotViewSet,
 )
 from vbb_backend.program.api.viewsets.slotStudent import StudentSlotViewSet
-from vbb_backend.users.api.viewsets.student import StudentViewSet
-
 from vbb_backend.session.api.viewsets.session import SessionViewSet
+from vbb_backend.session.api.viewsets.sessionMentor import MentorSessionViewSet
+from vbb_backend.session.api.viewsets.sessionStudent import StudentSessionViewSet
+from vbb_backend.users.api.viewsets.student import StudentViewSet
 
 if settings.DEBUG:
     router = DefaultRouter()
@@ -24,6 +25,11 @@ else:
 
 
 router.register("session", SessionViewSet)
+
+session_nested_router = NestedSimpleRouter(router, r"session", lookup="session")
+
+session_nested_router.register("mentor", MentorSessionViewSet)
+session_nested_router.register("student", StudentSessionViewSet)
 
 
 router.register("slot", ReadOnlySlotViewSet)
@@ -79,4 +85,5 @@ urlpatterns = [
     url(r"^", include(computer_nested_router.urls)),
     url(r"^", include(slot_nested_router.urls)),
     url(r"^", include(slot_base_nested_router.urls)),
+    url(r"^", include(session_nested_router.urls)),
 ]
