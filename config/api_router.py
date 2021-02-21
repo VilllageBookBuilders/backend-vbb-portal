@@ -15,10 +15,15 @@ from vbb_backend.program.api.viewsets.slotMentor import (
 from vbb_backend.program.api.viewsets.slotStudent import StudentSlotViewSet
 from vbb_backend.users.api.viewsets.student import StudentViewSet
 
+from vbb_backend.session.api.viewsets.session import SessionViewSet
+
 if settings.DEBUG:
     router = DefaultRouter()
 else:
     router = SimpleRouter()
+
+
+router.register("session", SessionViewSet)
 
 
 router.register("slot", ReadOnlySlotViewSet)

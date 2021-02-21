@@ -21,7 +21,7 @@ class MentorSlotListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MentorSlotAssociation
-        exclude = ("deleted", "external_id")
+        exclude = ("deleted", "external_id", "slot")
 
 
 class MentorSlotSerializer(MentorSlotListSerializer):
