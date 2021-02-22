@@ -7,7 +7,6 @@ import requests
 
 class VBBLogin(View): # accessed from .../api/v1/auth/token, accepts token and returns JWT
     def post(self, request):
-        #return HttpResponse(add_test_user()) 
         token = request.POST.get('google_access_token','')
         if token != '':
             auth_url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + str(token)
@@ -35,10 +34,4 @@ def get_refresh_token(user):
         'refresh': refresh,
         'access': refresh.access_token, # lifetime should be specified in settings already
     }
-
-def add_test_user():
-        newUser = User()
-        newUser.personal_email = "1234@gmail.com"
-        newUser.save()
-        return "saved user"
         
