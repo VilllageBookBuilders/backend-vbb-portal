@@ -3,6 +3,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 from vbb_backend.users.models import User
 from django.http import HttpResponse
+from django.http import JsonResponse
 import requests
 
 class VBBLogin(View): # accessed from .../api/v1/auth/token, accepts token and returns JWT
@@ -17,7 +18,7 @@ class VBBLogin(View): # accessed from .../api/v1/auth/token, accepts token and r
                 users = User.objects.filter(personal_email = email)
 
                 if len(users) == 1:
-                    return HttpResponse(get_refresh_token(users[0])) # send to function to generate token
+                    return JsonResponse(get_refresh_token(users[0])) # send to function to generate token
                 else:
                     return HttpResponse('Error: no user associated with email') 
                 # TODO: handle case of either no user associated with email or multiple users associated with email
