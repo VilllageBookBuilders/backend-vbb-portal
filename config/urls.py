@@ -1,3 +1,5 @@
+from vbb_backend.users.views import VBBLogin
+from django import views
 from django.conf import settings
 from django.conf.urls import url
 from django.conf.urls.static import static
@@ -14,6 +16,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from vbb_backend.users.views import VBBLogin
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -48,7 +51,7 @@ urlpatterns = [
     url(
         r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
     ),
-    path("api/v1/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/v1/auth/login/", VBBLogin.as_view(), name="token_obtain_pair"),
     path(
         "api/v1/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"
     ),
