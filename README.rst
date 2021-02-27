@@ -1,6 +1,3 @@
-Village Book Builders Backend
-=============================
-
 The Backend code for Village Book Builders Portal
 
 .. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
@@ -13,35 +10,20 @@ The Backend code for Village Book Builders Portal
 
 :License: MIT
 
-Intial Setup
-------------
 
-The following steps should be completed in order to properly run the vbb-backend-portal on your local machine. 
-Some steps may vary based on your operating system and some installation steps may be skipped if the required packages are already installed.
-If you encounter issues in this process which can't be resolved with a 20 minute Google search and debug, please reach out via the back-end channel of the VBB Slack group.
 
-(first time global installations)
-1) Install python3+ [https://realpython.com/installing-python/]
-2) Install pip [https://pip.pypa.io/en/stable/installing/]
-3) Install postgresql [https://pip.pypa.io/en/stable/installing/]
-4) Install redis [https://redis.io/download]
-5) Create a database in postgresql titled `vbb` in postgresql [https://www.freecodecamp.org/news/how-to-get-started-with-postgresql-9d3bc1dd1b11/]
 
-(to run)
-6) Clone and cd into the backend-vbb-portal repository
-7) Run `virtualenv env`
-8) Run `source env/bin/activate` (path may differ depending on where /activate is installed)
-9) Run `pip install -r requirements/local.txt`
-10) Run `python manage.py runserver`
 
 
 Settings
---------
 
 Moved to settings_.
 
 .. _settings: http://cookiecutter-django.readthedocs.io/en/latest/settings.html
 
+
+
+--------------
 Basic Commands
 --------------
 
@@ -130,8 +112,6 @@ See detailed `cookiecutter-django Heroku documentation`_.
 
 .. _`cookiecutter-django Heroku documentation`: http://cookiecutter-django.readthedocs.io/en/latest/deployment-on-heroku.html
 
-
-
 Docker
 ^^^^^^
 
@@ -140,4 +120,8 @@ See detailed `cookiecutter-django Docker documentation`_.
 .. _`cookiecutter-django Docker documentation`: http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html
 
 
-
+<!-- blank line -->
+###About Village Book Builders
+Village Book Builders accelerates student-directed learning through virtual mentoring, library infrastructure, and learning fulfillment solutions.
+Learn More @ https://www.villagebookbuilders.org/?v=1d20b5ff1ee9. 
+Donate @ https://www.villagebookbuilders.org/donate/?v=1d20b5ff1ee9.
