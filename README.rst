@@ -34,7 +34,7 @@ If you encounter issues in this process which can't be resolved with a 20 minute
 
     2) Install pip [https://pip.pypa.io/en/stable/installing/]
 
-    3) Install postgresql [https://pip.pypa.io/en/stable/installing/]
+    3) Install postgresql [https://www.postgresql.org/download/]
     
     4) Install redis [https://redis.io/download]
 
