@@ -1,3 +1,12 @@
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.http import HttpResponse
+from rest_framework import status
+
+import mailchimp_marketing as MailchimpMarketing
+from mailchimp_marketing.api_client import ApiClientError
+import json
+
 #TODO import and implement Mailchimp API
 @api_view(["POST"])
 def sign_up_for_newsletters(request):  
