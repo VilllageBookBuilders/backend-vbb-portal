@@ -9,7 +9,7 @@ import json
 
 #TODO import and implement Mailchimp API
 @api_view(["POST"])
-def sign_up_for_newsletters(request):  
+def sign_up_for_newsletter(request):  
     fname = request.data.get("firstName")
     lname = request.data.get("lastName")
     email = request.data.get("email")
