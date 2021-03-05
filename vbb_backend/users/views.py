@@ -15,12 +15,11 @@ env.read_env(str(ROOT_DIR / ".env"))
 #TODO import and implement Mailchimp API
 @api_view(["POST"])
 def sign_up_for_newsletter(request):
+    page_origin = request.build_absolute_uri()
     # TODO check on desired required fields
     fname = request.data.get("firstName")
     lname = request.data.get("lastName")
     email = request.data.get("email")
-    phoneNumber = request.data.get("phoneNumber")
-    # countryCode = request.data.get('countryCode'), TODO: when we fix front-end form, we can uncomment this part
 
     member_info = {
         "email_address": email,
@@ -28,12 +27,10 @@ def sign_up_for_newsletter(request):
         "merge_fields": {
         "FNAME": fname,
         "LNAME": lname,
-        "PHONE": phoneNumber,
-        # "PHONE": (f'+{countryCode}{phoneNumber}'), TODO: when we fix front-end form, we can uncomment this part
         }
     }
-
     try:
+
         client = MailchimpMarketing.Client()
         client.set_config({
             "api_key": env.str("MAILCHIMP_API_KEY"),
@@ -45,7 +42,7 @@ def sign_up_for_newsletter(request):
     except ApiClientError as error:
         print(f"An exception occurred: {error.text}")
 
-    #TODO test this functionality more thoroughly
+    #TODO check on useful response for FE
     return Response(
         {"success": "true"}
     )
