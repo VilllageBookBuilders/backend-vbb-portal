@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import logging
 import base64
 import requests
 import requests_oauth2
@@ -18,6 +19,9 @@ from bs4 import BeautifulSoup
 import re
 import random
 import string
+
+logger = logging.getLogger(__name__)
+
 
 class GoogleApi:
       
@@ -73,32 +77,32 @@ class GoogleApi:
                   return False
                 return True
 
-              primaryEmail = firstName + '.' + lastName + '@villagementors.org'
+        primaryEmail = firstName + '.' + lastName + '@villagementors.org'
 
-              while(userExists(primaryEmail)):
-                addedID += 1
-                primaryEmail = firstName + '.' + lastName + \
-                    str(addedID) + '@villagementors.org'
-              pwd = 'VBB' + random.choice(['!', '@', '#', '$', '%', '&']) + \
+        while(userExists(primaryEmail)):
+          addedID += 1
+          primaryEmail = firstName + '.' + lastName + \
+              str(addedID) + '@villagementors.org'
+        pwd = 'VBB' + random.choice(['!', '@', '#', '$', '%', '&']) + \
                   str(random.randint(100000000, 1000000000))
 
-              data = '''
-              {
-                "primaryEmail": "%s",
-                "name": {
-                  "familyName": "%s",
-                  "givenName": "%s"
-                },
-                "password": "%s",
-                "changePasswordAtNextLogin": "true",
-                "recoveryEmail": "%s",
-              }
-              ''' % (primaryEmail, lastName, firstName, pwd, personalEmail)
+        data = '''
+        {
+          "primaryEmail": "%s",
+          "name": {
+            "familyName": "%s",
+            "givenName": "%s"
+          },
+          "password": "%s",
+          "changePasswordAtNextLogin": "true",
+          "recoveryEmail": "%s",
+        }
+        ''' % (primaryEmail, lastName, firstName, pwd, personalEmail)
 
-              with requests.Session() as s:
-                s.auth = OAuth2BearerToken(self.__webdev_cred.token)
-                r = s.post(url, headers=headers, data=data)
-              return (primaryEmail, pwd)
+        with requests.Session() as s:
+          s.auth = OAuth2BearerToken(self.__webdev_cred.token)
+          r = s.post(url, headers=headers, data=data)
+        return (primaryEmail, pwd)
 
   def new_calendar_event(self, mentorFirstName, menteeEmail, mentorEmail, personalEmail, directorEmail, start_time, end_date, calendar_id, room, duration=1):
         
@@ -109,10 +113,14 @@ class GoogleApi:
         The request body suppy an event resource
 
         Args:
-            mentorFirstName
-            ...
-            ...
-            ...
+            mentorFirstName: Mentor's First Name
+            menteeEmail: Email's Mentee
+            mentorEmail: Mentor's Email @villagementors.org
+            personalEmail: Mentor's personal email
+            directorEmail: Director's Email
+            start_time: Start time of the session (yyyy-mm-ddThh:mm:ss)
+            end_date: End date of the session
+            calendar_id: Calendar's identifier
 
         Returns:
             An object event containing all properties of the session
@@ -162,10 +170,12 @@ class GoogleApi:
         }
         event_obj = calendar_service.events().insert(calendarId=calendar_id, body=event,
                                                     sendUpdates="all", conferenceDataVersion=1).execute()
+        #print(event_obj)
 
         return(event_obj['id'], event_obj['hangoutLink'])
-
+        
   def email_send(self, to, subject, templatePath, extraData=None, cc=None):
+        
       """ Send an email message
 
       Args:
@@ -181,7 +191,26 @@ class GoogleApi:
       if cc is not None:
         cc = ','.join(cc)
 
-
+      def updatePersonalizedHTML(templatePath, personalizedPath, extraData):
+        
+        """ Get HTML with the extraData filled in where specified.
+          - Use Beautiful soup to find and replace the placeholder values with the proper user
+            specific info
+          - Use 'with' to write the beautifulSoup string into a newFile - the personalized version of the
+            original templatePath. This personalized version will be sent out in the email and will be
+            rewritten everytime the function is called.
+        """
+        with open(templatePath, 'r', encoding="utf8") as f:
+          template = f.read()
+        soup = BeautifulSoup(template, features="html.parser")
+        if extraData != None:
+          for key in extraData:
+            target = soup.find_all(text=re.compile(r'%s' % key))
+            for v in target:
+              v.replace_with(v.replace('%s' % key, extraData[key]))
+          # now soup string has the proper values
+        with open(personalizedPath, "w") as file:
+          file.write(str(soup))
 
   def update_event(self, calendar_id, event_id, end_date=None, start_time=None, end_time=None):
       """ Update an existing event
@@ -189,22 +218,85 @@ class GoogleApi:
       https://developers.google.com/calendar/v3/reference/events/update
 
       Args:
-        calendar_id: Calendar's Mentor identifier
+        calendar_id: Calendar's identifier
         event_id: Event identifier
-        end_date: New end date
+        end_date: New end date of the session after update
 
       """
-        calendar_service = build('calendar', 'v3', credentials=self.__mentor_cred)
-        event = calendar_service.events().get(
-            calendarId=calendar_id, eventId=event_id).execute()
-        if (end_date != None):
-          end_date_formated = end_date.replace(':', '')
-          end_date_formated = end_date_formated.replace('-', '')
-          end_date_formated += 'Z'
-          event['recurrence'] = ['RRULE:FREQ=WEEKLY;UNTIL=' + end_date_formated]
-          event['summary'] = 'update worked 2021!'
-          updated_event = calendar_service.events().update(
-          calendarId=calendar_id, eventId=event['id'], body=event).execute()
+      calendar_service = build('calendar', 'v3', credentials=self.__mentor_cred)
+      event = calendar_service.events().get(
+          calendarId=calendar_id, eventId=event_id).execute()
+      if (end_date != None):
+        end_date_formated = end_date.replace(':', '')
+        end_date_formated = end_date_formated.replace('-', '')
+        end_date_formated += 'Z'
+        event['recurrence'] = ['RRULE:FREQ=WEEKLY;UNTIL=' + end_date_formated]
+        event['summary'] = 'update worked 2021!'
+        updated_event = calendar_service.events().update(
+        calendarId=calendar_id, eventId=event['id'], body=event).execute()
 
 
+
+
+
+
+
+
+
+
+
+
+# # FOR TESTING PURPOSES -- REMOVE LATER
+def testFunction():
+    g = GoogleApi()
+    # with open("vbb_backend/service-account.json", "r") as readfile:
+    #   print("hello")
+
+  # g.shift_event("c_oha2uv7abp2vs6jlrl96aeoje8@group.calendar.google.com","0vjr0aj0e3nv1tmc2ui2mtshbi")
+
+
+#   g = google_apis()
+#  print("subscribing")
+  # g = google_apis()
+#   print("subscribing")
+#   g.group_subscribe("mentor.collaboration@villagebookbuilders.org", "ed.ringger@villagementors.org")
+#   welcome_mail = os.path.join("api", "emails", "templates", "welcomeLetter.html")
+
+#   sessionConfirm_mail = os.path.join("api","emails","templates", "sessionConfirm.html")
+#   training_mail = os.path.join("api","emails","templates", "training.html")
+#   newMentorNotice_mail = os.path.join("api","emails","templates", "newMentorNotice.html")
+
+  # g.email_send(
+  #  "edringger@gmail.com",        # personal email form form
+  #  "Welcome to the VBB Family!",
+  #  welcome_mail,
+  #  {
+  #    '__first_name': "Shwetha",                 # first name from form
+  #    '__new_email': "varunvraja@gmail.com",         # email generated by shweta's code
+  #    '__password': "vbb"                        # password generated by shweta's code
+  #  },
+  #  ["ed.test1@villagebookbuilders.org", "ed.ringger0@villagementors.org"]
+  # )
+
+  # g.email_send(
+  #   "ed.test1@villagebookbuilders.org",        # personal email form form
+  #   "Training",
+  #   training_mail,
+  #   cc=["edringger@gmail.com"]
+  # )
+
+    # g.account_create(
+    #     "Ximena",
+    #     "Rogers",
+    #     "ximena.rodriguez1@villagementors.org")
+
+    g.new_calendar_event(
+        "TestNewCalendarEvent",
+        "testmentor@villagementors.org",
+        "ximena.rodriguez1@villagementors.org",
+        "testmentee@gmail.com",
+        "testdirector@gmail.com",
+        "2021-03-23T23:30:00", "2021-10-30T22:00:00",
+        "c_oha2uv7abp2vs6jlrl96aeoje8@group.calendar.google.com",
+        "10")
 
