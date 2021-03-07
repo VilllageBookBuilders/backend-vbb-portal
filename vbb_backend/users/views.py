@@ -55,7 +55,6 @@ class VBBLogin(APIView):
         if "google_access_token" in request.data:
             try:
                 token = request.data["google_access_token"]
-                print(token)
                 auth_url = (
                     "https://oauth2.googleapis.com/tokeninfo?access_token=" + str(token)
                 )
