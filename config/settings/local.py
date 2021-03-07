@@ -72,3 +72,5 @@ SIMPLE_JWT = {
     ),
     "ROTATE_REFRESH_TOKENS": True,
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
