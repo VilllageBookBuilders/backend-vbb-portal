@@ -51,7 +51,8 @@ urlpatterns = [
     url(
         r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
     ),
-    path("api/v1/auth/login/", VBBLogin.as_view(), name="token_obtain_pair"),
+    path("api/v1/auth/token/", VBBLogin.as_view(), name="google_oauth_token"),
+    path("api/v1/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path(
         "api/v1/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"
     ),
