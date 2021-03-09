@@ -98,6 +98,8 @@ class NewsletterSignup(APIView):
         email = request.POST["email"]
         fname = request.POST["firstName"]
         lname = request.POST["lastName"]
+        # Passed from FE to denote user signup origin, i.e. mentor, donor, etc.
+        user_type = request.POST['userType']
 
         member_info = {
             "email": email,
