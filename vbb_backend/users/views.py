@@ -121,5 +121,4 @@ class NewsletterSignup(APIView):
             mailchimp_response = client.lists.add_list_member(list_id, member_info)
             return JsonResponse(member_info, status=201)
         except ApiClientError as error:
-            print("ERROR: ", error.text)
             return HttpResponse(error.text, status=500)
