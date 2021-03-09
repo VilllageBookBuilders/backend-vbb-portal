@@ -1,49 +1,86 @@
-from pathlib import Path
-import environ
+import logging
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+import requests
+from django.http import JsonResponse
+from django.http.response import HttpResponse
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import serializers
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
-import mailchimp_marketing as MailchimpMarketing
-from mailchimp_marketing.api_client import ApiClientError
+from vbb_backend.users.models import User
 
-ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
-APPS_DIR = ROOT_DIR / "vbb_backend"
-env = environ.Env()
-env.read_env(str(ROOT_DIR / ".env"))
+LOGGER = logging.getLogger(__name__)
 
-#TODO import and implement Mailchimp API
-@api_view(["POST"])
-def sign_up_for_newsletter(request):
-    page_origin = request.build_absolute_uri()
-    # TODO check on desired required fields
-    fname = request.data.get("firstName")
-    lname = request.data.get("lastName")
-    email = request.data.get("email")
 
-    member_info = {
-        "email_address": email,
-        "status": "subscribed",
-        "merge_fields": {
-        "FNAME": fname,
-        "LNAME": lname,
-        }
-    }
-    try:
+class TokenSample(serializers.Serializer):
+    refresh = serializers.CharField()
+    token = serializers.CharField()
 
-        client = MailchimpMarketing.Client()
-        client.set_config({
-            "api_key": env.str("MAILCHIMP_API_KEY"),
-            "server": env.str("MAILCHIMP_SERVER")
-        })
-        list_id = env.str("MAILCHIMP_LIST_ID")
-        response = client.lists.add_list_member(list_id, member_info)
-        print(f"Response: {response}")
-    except ApiClientError as error:
-        print(f"An exception occurred: {error.text}")
 
-    #TODO check on useful response for FE
-    return Response(
-        {"success": "true"}
+class RequestSample(serializers.Serializer):
+    google_access_token = serializers.CharField()
+
+
+class UserNotFoundException(Exception):
+    pass
+
+
+class UserNotVerifiedException(Exception):
+    pass
+
+
+token_response = openapi.Response("Token", TokenSample)
+
+
+class VBBLogin(APIView):
+    """
+    Returns a valid JWT Access and Refresh Token from a valid Google Access Token After Oauth Completion
+    """
+
+    permission_classes = []
+    authentication_classes = []
+
+    @swagger_auto_schema(
+        request_body=RequestSample,
+        responses={
+            200: token_response,
+            404: "User Not Found in Database",
+            400: "Invalid Request",
+            403: "Authorisation Failed",
+        },
     )
-    
+    def post(self, request):
+        if "google_access_token" in request.data:
+            try:
+                token = request.data["google_access_token"]
+                auth_url = (
+                    "https://oauth2.googleapis.com/tokeninfo?access_token=" + str(token)
+                )
+                token_info_request = requests.get(auth_url)
+                google_response = token_info_request.json()
+                if google_response["email_verified"] != "true":
+                    raise UserNotVerifiedException("User Not Verified")
+                email = google_response["email"]
+
+                user = User.objects.filter(email=email).first()
+
+                if user:
+                    return JsonResponse(get_refresh_token(user))
+                else:
+                    raise UserNotFoundException("User Not Found")
+            except UserNotFoundException:
+                return HttpResponse(status=404)
+            except Exception as e:
+                LOGGER.error("User Login with Google Failed Because of {}".format(e))
+                return HttpResponse(status=403)
+        return HttpResponse(status=400)
+
+
+def get_refresh_token(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+    }

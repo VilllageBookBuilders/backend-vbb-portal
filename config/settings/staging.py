@@ -218,3 +218,16 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATIC_ROOT = os.path.join(ROOT_DIR, "staticfiles")
 
 COLLECTFAST_ENABLED = False
+
+# Simple JWT
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=env("JWT_ACCESS_TOKEN_LIFETIME", default=1000000000)
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        minutes=env("JWT_REFRESH_TOKEN_LIFETIME", default=3000000000)
+    ),
+    "ROTATE_REFRESH_TOKENS": True,
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
