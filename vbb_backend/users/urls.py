@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import sign_up_for_newsletter
+from .views import NewsletterSignup
 
 app_name = "users"
 urlpatterns = [
-  path('newsletter', sign_up_for_newsletter)
+  path('newsletter/', NewsletterSignup.as_view())
 ]
