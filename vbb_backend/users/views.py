@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from django.conf import settings
 from django.http import JsonResponse
 from django.http.response import HttpResponse
 from drf_yasg import openapi
@@ -8,12 +9,10 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from django.conf import settings
-from vbb_backend.users.models import User
-
 import mailchimp_marketing as MailchimpMarketing
 from mailchimp_marketing.api_client import ApiClientError
+
+from vbb_backend.users.models import User
 
 LOGGER = logging.getLogger(__name__)
 
@@ -101,8 +100,7 @@ class NewsletterSignup(APIView):
         lname = request.POST["lastName"]
 
         member_info = {
-            # TODO: rename to email
-            "email_address": email,
+            "email": email,
             "status": "subscribed",
             "merge_fields": {
             "FNAME": fname,
