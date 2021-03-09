@@ -9,7 +9,11 @@ from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django.conf import settings
 from vbb_backend.users.models import User
+
+import mailchimp_marketing as MailchimpMarketing
+from mailchimp_marketing.api_client import ApiClientError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -84,3 +88,38 @@ def get_refresh_token(user):
         "refresh": str(refresh),
         "access": str(refresh.access_token),
     }
+
+class NewsletterSignup(APIView):
+    """
+    accessed from .../users/newsletter, accepts user email and info
+    """
+
+    def post(self, request):
+        # TODO Error checking for missing fields
+        email = request.POST["email"]
+        fname = request.POST["firstName"]
+        lname = request.POST["lastName"]
+
+        member_info = {
+            # TODO: rename to email
+            "email_address": email,
+            "status": "subscribed",
+            "merge_fields": {
+            "FNAME": fname,
+            "LNAME": lname,
+            }
+        }
+
+        try:
+            client = MailchimpMarketing.Client()
+            client.set_config({
+                "api_key": settings.MAILCHIMP_API_KEY,
+                "server": settings.MAILCHIMP_SERVER
+            })
+            list_id = settings.MAILCHIMP_LIST_ID
+            # Unused as yet, response info here: https://mailchimp.com/developer/marketing/api/list-members/add-member-to-list/
+            mailchimp_response = client.lists.add_list_member(list_id, member_info)
+            return JsonResponse(member_info, status=201)
+        except ApiClientError as error:
+            print("ERROR: ", error.text)
+            return HttpResponse(error.text, status=500)
