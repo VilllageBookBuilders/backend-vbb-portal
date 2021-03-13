@@ -21,7 +21,7 @@ class StudentSlotListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentSlotAssociation
-        exclude = ("deleted", "external_id")
+        exclude = ("deleted", "external_id", "slot")
 
 
 class StudentSlotSerializer(StudentSlotListSerializer):

@@ -16,6 +16,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from vbb_backend.users.views import VBBLogin
 
 schema_view = get_schema_view(
     openapi.Info(
