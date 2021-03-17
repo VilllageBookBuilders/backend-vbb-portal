@@ -94,12 +94,14 @@ class NewsletterSignup(APIView):
     """
 
     def post(self, request):
-        # TODO Error checking for missing fields
-        email = request.POST["email"]
-        fname = request.POST["firstName"]
-        lname = request.POST["lastName"]
+        try:
+            email = request.POST["email"]
+            fname = request.POST["firstName"]
+            lname = request.POST["lastName"]
         # Passed from FE to denote user signup origin, i.e. mentor, donor, etc.
-        user_type = request.POST['userType']
+            referral_source = request.POST['referralSource']
+        except KeyError as error:
+            return HttpResponse(f"Missing required field: {error}.", status=400)
 
         member_info = {
             "email": email,
