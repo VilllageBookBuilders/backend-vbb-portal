@@ -324,3 +324,8 @@ SIMPLE_JWT = {
     ),
     "ROTATE_REFRESH_TOKENS": True,
 }
+
+# mailchimp-marketing - https://github.com/mailchimp/mailchimp-marketing-python
+MAILCHIMP_API_KEY = env.str("MAILCHIMP_API_KEY", default='4f10e2925406ba5a1ce0edf5f766de1d-us2')
+MAILCHIMP_SERVER = env.str("MAILCHIMP_SERVER", default='us2')
+MAILCHIMP_LIST_ID = env.str("MAILCHIMP_LIST_ID", default='cc12143c34')
