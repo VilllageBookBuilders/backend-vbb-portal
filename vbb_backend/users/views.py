@@ -4,6 +4,7 @@ import requests
 from django.conf import settings
 from django.http import JsonResponse
 from django.http.response import HttpResponse
+from django.db import IntegrityError
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers
@@ -102,6 +103,12 @@ class NewsletterSignup(APIView):
             referral_source = request.POST['referralSource']
         except KeyError as error:
             return HttpResponse(f"Missing required field: {error}.", status=400)
+        
+        try:
+            new_user = User(username = email, email=email, first_name=fname, last_name=lname, referral_source=referral_source)
+            new_user.save()
+        except IntegrityError:
+            print("A user with that username already exists; user not saved.")
 
         member_info = {
             "email": email,
