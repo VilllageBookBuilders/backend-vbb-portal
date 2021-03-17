@@ -1,5 +1,14 @@
-Village Book Builders Backend
+Village Portal Backend
 =============================
+Village Portal is an open-sourced 'facility-based mentoring management platform'. Village Book Builders accelerates learners globally through virtual mentoring, learning libraries, and community-directed educational solutions. Village Portal helps schedule hundreds of virtual mentors with mentees worldwide; this connection catalyzes further impact. Other features are in development. Village Portal's mission is to enable mentors to teach courageous learners and communities how to fish. By increasing literacy, research, and educational skills, we hope to enable innovation economies in villages globally. Village Portal is an essential step towards a better future. Are you interested in the cause? Reach out to us at hr@villagebookbuilders.org. Learn more @ www.villagebookbuilders.org.
+
+
+Front-End of Village Portal @ https://github.com/VilllageBookBuilders/frontend-vbb-portal.git
+
+To Help, questions, comments, concerns, Email US at @ support@villagebookbuilders.org. 
+    Our DEV Taskboard: https://app.zenhub.com/workspaces/villagebookbuilders-5f662d2ba0525c27f3a90388/board. 
+        Join our weekly meetings: https://meet.google.com/btm-gwyo-uwr on Saturday at 9AM 
+
 
 The Backend code for Village Book Builders Portal
 
