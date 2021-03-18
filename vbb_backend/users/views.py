@@ -7,13 +7,14 @@ from django.http.response import HttpResponse
 from django.db import IntegrityError
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import serializers
+from rest_framework import serializers, authentication, permissions
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 import mailchimp_marketing as MailchimpMarketing
 from mailchimp_marketing.api_client import ApiClientError
 
-from vbb_backend.users.models import User
+from vbb_backend.users.models import User, Subscriber
 
 LOGGER = logging.getLogger(__name__)
 
@@ -100,15 +101,15 @@ class NewsletterSignup(APIView):
             fname = request.POST["firstName"]
             lname = request.POST["lastName"]
         # Passed from FE to denote user signup origin, i.e. mentor, donor, etc.
-            referral_source = request.POST['referralSource']
+            subscriber_type = request.POST['subscriberType']
         except KeyError as error:
             return HttpResponse(f"Missing required field: {error}.", status=400)
         
         try:
-            new_user = User(username = email, email=email, first_name=fname, last_name=lname, referral_source=referral_source)
-            new_user.save()
+            new_subscriber = Subscriber(username = email, email=email, first_name=fname, last_name=lname, subscriber_type=subscriber_type)
+            new_subscriber.save()
         except IntegrityError:
-            print("A user with that username already exists; user not saved.")
+            print("A subscriber with that username already exists; subscriber not saved.")
 
         member_info = {
             "email": email,
