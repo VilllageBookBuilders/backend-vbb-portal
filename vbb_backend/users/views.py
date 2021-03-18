@@ -94,7 +94,9 @@ class NewsletterSignup(APIView):
     """
     accessed from .../users/newsletter, accepts user email and info
     """
-
+    authentication_classes = []
+    permission_classes = []
+    
     def post(self, request):
         try:
             email = request.POST["email"]
