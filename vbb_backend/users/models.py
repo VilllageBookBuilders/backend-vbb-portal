@@ -168,3 +168,10 @@ class HeadMaster(BaseUUIDModel):
         on_delete=models.CASCADE,
     )
     # Further HeadMaster Information Here
+
+class Subscriber(BaseUUIDModel):
+    # Further Subscriber Information Here
+    personal_email = models.EmailField(
+        null=True, unique=True, verbose_name=_("Personal Email")
+    )
+    subscriber_type = models.CharField(max_length=70, null=True, blank=True)
