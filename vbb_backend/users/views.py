@@ -106,10 +106,10 @@ class NewsletterSignup(APIView):
             return HttpResponse(f"Missing required field: {error}.", status=400)
         
         try:
-            new_subscriber = Subscriber(username = email, email=email, first_name=fname, last_name=lname, subscriber_type=subscriber_type)
+            new_subscriber = Subscriber(personal_email=email, subscriber_type=subscriber_type)
             new_subscriber.save()
         except IntegrityError:
-            print("A subscriber with that username already exists; subscriber not saved.")
+            print("A subscriber with that email address already exists; subscriber not saved.")
 
         member_info = {
             "email": email,
