@@ -102,7 +102,7 @@ class NewsletterSignup(APIView):
             email = request.POST["email"]
             fname = request.POST["firstName"]
             lname = request.POST["lastName"]
-        # Passed from FE to denote user signup origin, i.e. mentor, donor, etc.
+            # Passed from FE to denote user signup origin, i.e. mentor, donor, etc.
             subscriber_type = request.POST['subscriberType']
         except KeyError as error:
             return HttpResponse(f"Missing required field: {error}.", status=400)
