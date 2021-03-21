@@ -4,9 +4,10 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from vbb_backend.otherIntegrations.mailChimp.mailChimp import subscribe_newsletter
 from phonenumber_field.modelfields import PhoneNumberField
 
+from config import settings
+from vbb_backend.otherIntegrations.mailChimp.mailChimp import subscribe_newsletter
 from vbb_backend.utils.models.base import BaseUUIDModel
 from vbb_backend.utils.models.question import QuestionareAnswers, QuestionareQuestions
 
@@ -22,7 +23,7 @@ class UserTypeEnum(enum.Enum):
 
 UserTypeChoices = [(e.value, e.name) for e in UserTypeEnum]
 
-from vbb_backend.program.models import School, LanguageChoices, TIMEZONES
+from vbb_backend.program.models import TIMEZONES, LanguageChoices, School
 
 
 class User(AbstractUser, BaseUUIDModel):
@@ -197,13 +198,14 @@ class NewsletterSubscriber(BaseUUIDModel):
     )
 
     def save(self, **kwargs) -> None:
-        data = {
-            "email": self.email,
-            "status": "subscribed",
-            "merge_fields": {
-                "FNAME": self.first_name,
-                "LNAME": self.last_name,
-            },
-        }
-        subscribe_newsletter(data)
+        if settings.IS_PRODUCTION:
+            data = {
+                "email": self.email,
+                "status": "subscribed",
+                "merge_fields": {
+                    "FNAME": self.first_name,
+                    "LNAME": self.last_name,
+                },
+            }
+            subscribe_newsletter(data)
         return super().save(**kwargs)
