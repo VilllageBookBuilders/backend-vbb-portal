@@ -16,12 +16,15 @@ from vbb_backend.program.api.viewsets.slotStudent import StudentSlotViewSet
 from vbb_backend.session.api.viewsets.session import SessionViewSet
 from vbb_backend.session.api.viewsets.sessionMentor import MentorSessionViewSet
 from vbb_backend.session.api.viewsets.sessionStudent import StudentSessionViewSet
+from vbb_backend.users.api.viewsets.newsletter import NewsletterSubscriberViewSet
 from vbb_backend.users.api.viewsets.student import StudentViewSet
 
 if settings.DEBUG:
     router = DefaultRouter()
 else:
     router = SimpleRouter()
+
+router.register("newsletter", NewsletterSubscriberViewSet)
 
 
 router.register("session", SessionViewSet)

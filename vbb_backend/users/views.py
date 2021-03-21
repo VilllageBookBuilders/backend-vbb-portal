@@ -11,10 +11,8 @@ from rest_framework import serializers, authentication, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-import mailchimp_marketing as MailchimpMarketing
-from mailchimp_marketing.api_client import ApiClientError
 
-from vbb_backend.users.models import User, Subscriber
+from vbb_backend.users.models import User
 
 LOGGER = logging.getLogger(__name__)
 
@@ -89,48 +87,3 @@ def get_refresh_token(user):
         "refresh": str(refresh),
         "access": str(refresh.access_token),
     }
-
-class NewsletterSignup(APIView):
-    """
-    accessed from .../users/newsletter, accepts user email and info
-    """
-    authentication_classes = []
-    permission_classes = []
-    
-    def post(self, request):
-        try:
-            email = request.POST["email"]
-            fname = request.POST["firstName"]
-            lname = request.POST["lastName"]
-            # Passed from FE to denote user signup origin, i.e. mentor, donor, etc.
-            subscriber_type = request.POST['subscriberType']
-        except KeyError as error:
-            return HttpResponse(f"Missing required field: {error}.", status=400)
-        
-        try:
-            new_subscriber = Subscriber(personal_email=email, subscriber_type=subscriber_type)
-            new_subscriber.save()
-        except IntegrityError:
-            print("A subscriber with that email address already exists; subscriber not saved.")
-
-        member_info = {
-            "email": email,
-            "status": "subscribed",
-            "merge_fields": {
-            "FNAME": fname,
-            "LNAME": lname,
-            }
-        }
-
-        try:
-            client = MailchimpMarketing.Client()
-            client.set_config({
-                "api_key": settings.MAILCHIMP_API_KEY,
-                "server": settings.MAILCHIMP_SERVER
-            })
-            list_id = settings.MAILCHIMP_LIST_ID
-            # Unused as yet, response info here: https://mailchimp.com/developer/marketing/api/list-members/add-member-to-list/
-            mailchimp_response = client.lists.add_list_member(list_id, member_info)
-            return JsonResponse(member_info, status=201)
-        except ApiClientError as error:
-            return HttpResponse(error.text, status=500)

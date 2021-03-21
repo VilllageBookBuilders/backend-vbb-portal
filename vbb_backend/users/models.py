@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from vbb_backend.otherIntegrations.mailChimp.mailChimp import subscribe_newsletter
 from phonenumber_field.modelfields import PhoneNumberField
 
 from vbb_backend.utils.models.base import BaseUUIDModel
@@ -169,9 +170,40 @@ class HeadMaster(BaseUUIDModel):
     )
     # Further HeadMaster Information Here
 
-class Subscriber(BaseUUIDModel):
-    # Further Subscriber Information Here
-    personal_email = models.EmailField(
-        null=True, unique=True, verbose_name=_("Personal Email")
+
+class SubscriptionTypeEnum(enum.Enum):
+    REGISTRATION = "REGISTRATION"
+    VBB_NEWSLETTER = "VBB_NEWSLETTER"
+
+
+SubscriptionTypeChoices = [(e.value, e.name) for e in SubscriptionTypeEnum]
+
+
+class NewsletterSubscriber(BaseUUIDModel):
+    """
+    Model to store information about Newsletter Subscriptions
+    """
+
+    first_name = models.CharField(max_length=254, null=True, blank=True)
+    last_name = models.CharField(max_length=254, null=True, blank=True)
+    phone_number = PhoneNumberField(blank=True, verbose_name=_("Phone Number"))
+    email = models.EmailField(
+        null=False, blank=False, unique=True, verbose_name=_("Email")
     )
-    subscriber_type = models.CharField(max_length=70, null=True, blank=True)
+    subscriber_type = models.CharField(
+        max_length=254,
+        choices=SubscriptionTypeChoices,
+        default=SubscriptionTypeEnum.VBB_NEWSLETTER.value,
+    )
+
+    def save(self, **kwargs) -> None:
+        data = {
+            "email": self.email,
+            "status": "subscribed",
+            "merge_fields": {
+                "FNAME": self.first_name,
+                "LNAME": self.last_name,
+            },
+        }
+        subscribe_newsletter(data)
+        return super().save(**kwargs)
