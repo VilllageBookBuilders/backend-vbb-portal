@@ -26,7 +26,7 @@ class Program(BaseUUIDModel):
     Users that have foreign keys back to Program:
         ??? Program Director ???
         Student (through School)
-        Teacher (through School)
+    Teacher (through School)
         Mentor (through Slot)
         Mentor Advisor (many to many through a relation table)
 

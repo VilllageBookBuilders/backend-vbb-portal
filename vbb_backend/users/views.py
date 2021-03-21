@@ -1,12 +1,15 @@
 import logging
 
 import requests
+from django.conf import settings
 from django.http import JsonResponse
 from django.http.response import HttpResponse
+from django.db import IntegrityError
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import serializers
+from rest_framework import serializers, authentication, permissions
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from vbb_backend.users.models import User
