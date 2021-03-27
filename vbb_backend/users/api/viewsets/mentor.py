@@ -16,6 +16,11 @@ class MentorViewSet(ModelViewSet):
     serializer_class = MentorSerializer
     lookup_field = "external_id"
 
+    def get_permissions(self):
+        if self.action == "create":
+            return []
+        return super().get_permissions()
+
     def get_queryset(self):
         queryset = self.queryset.filter(user__user_type=UserTypeEnum.MENTOR.value)
         user = self.request.user

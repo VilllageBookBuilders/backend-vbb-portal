@@ -33,7 +33,7 @@ class MentorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mentor
-        exclude = ("deleted", "school")
+        exclude = ("deleted", "external_id")
 
     def validate(self, attrs):
         user = attrs["user"]
