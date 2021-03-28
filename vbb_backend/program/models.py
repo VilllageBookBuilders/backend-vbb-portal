@@ -44,12 +44,9 @@ class Program(BaseUUIDModel):
     # ? should we add a unique ID value or is "ID" autocreated @vignesh?
     name = models.CharField(max_length=40, blank=False)
     time_zone = models.CharField(max_length=32, choices=TIMEZONES)
-    program = models.ForeignKey("program.Program", on_delete=models.SET_NULL, null=True) #not sure why this exists? don't remember if I made it?
     # todo add field type = models.ForeignKey(ContentType) types include excellent, good, poor, gov/low-fee, special status
     latitude = models.FloatField(min_value=-90, max_value=90, null=True, blank=True)
     longitude = models.FloatField(min_value=-180, max_value=180, null=True, blank=True)
-    # ? should we use GeoDjango Approach - needs database manipulation: https://raphael-leger.medium.com/django-handle-latitude-and-longitude-54a4bb2f6e3b
-    # ? for querying?
     program_director = models.ForeignKey(
         "users.User", on_delete=models.SET_NULL, null=True
     )
@@ -57,7 +54,7 @@ class Program(BaseUUIDModel):
     mentor_advisors = ArrayField(   #https://docs.djangoproject.com/en/3.1/ref/contrib/postgres/fields/
         models.ForeignKey(
             "users.User", on_delete=models.SET_NULL, null=True
-        ),
+        ), # todo create a many to many django, through association too!!! see like 382
     size=3, null=True, blank=True)
     ACCESS_CONTROL = {"mentor_advisor": [UserTypeEnum.ADVISOR.value]}
     # ! not sure if we need array field or the "models.ManyToManyField" thing?
@@ -358,6 +355,7 @@ class Slot(BaseUUIDModel):
     # DO NOT CHANGE THE DEFAULT INIT DATE | USED FOR EASE OF USE
     slot_number = models.IntegerField(null=True, blank=True)
     # ? should we have a way to ID the slots across computers or programs? like an index to help admins find slots?
+    # todo remove computer model as in the apis we can make implicit associations exlicit in apis
     computer = models.ForeignKey(
         Computer,
         on_delete=models.PROTECT,
