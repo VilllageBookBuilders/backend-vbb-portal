@@ -17,6 +17,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from vbb_backend.users.views import VBBLogin
+from vbb_backend.users.api.viewsets.user import CurrentUserView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -50,6 +51,9 @@ urlpatterns = [
     ),
     url(
         r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
+    ),
+    path(
+        "api/v1/auth/getcurrentuser", CurrentUserView.as_view(), name="get-current-user"
     ),
     path("api/v1/auth/token/", VBBLogin.as_view(), name="google_oauth_token"),
     path("api/v1/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
