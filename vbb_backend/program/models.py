@@ -3,7 +3,6 @@ from datetime import datetime
 from django.db import models
 from django.db.models.base import Model
 from rest_framework.exceptions import ValidationError
-from django.contrib.postgres.fields import ArrayField
 
 from vbb_backend.utils.models.base import BaseUUIDModel
 from vbb_backend.users.models import UserTypeEnum
@@ -19,7 +18,6 @@ class LanguageEnum(enum.Enum):
     VIETNAMESE = "VIETNAMSE"
     TAGALOG = "TAGALOG"
     HINDI = "HINDI"
-
 
 LanguageChoices = [(e.value, e.name) for e in LanguageEnum]
 
@@ -41,7 +39,10 @@ class Program(BaseUUIDModel):
         Library
         Computer (?)
     """
-    # ? should we add a unique ID value or is "ID" autocreated @vignesh?
+    # todo make id explict on apis
+    # ! make id explict on apis 
+    
+    # primary information
     name = models.CharField(max_length=40, blank=False)
     time_zone = models.CharField(max_length=32, choices=TIMEZONES)
     # todo add field type = models.ForeignKey(ContentType) types include excellent, good, poor, gov/low-fee, special status
@@ -51,31 +52,37 @@ class Program(BaseUUIDModel):
         "users.User", on_delete=models.SET_NULL, null=True
     )
     ACCESS_CONTROL = {"program_director": [UserTypeEnum.ADVISOR.value]}
-    mentor_advisors = ArrayField(   #https://docs.djangoproject.com/en/3.1/ref/contrib/postgres/fields/
-        models.ForeignKey(
-            "users.User", on_delete=models.SET_NULL, null=True
-        ), # todo create a many to many django, through association too!!! see like 382
-    size=3, null=True, blank=True)
-    ACCESS_CONTROL = {"mentor_advisor": [UserTypeEnum.ADVISOR.value]}
-    # ! not sure if we need array field or the "models.ManyToManyField" thing?
-    # schools =  ArrayField( models.ForeignKey( School, on_delete=models.SET_NULL, null=True), size=3, null=True, blank=True)     ACCESS_CONTROL = {"mentor_advisor": [UserTypeEnum.ADVISOR.value]}
-    # libraries =  ArrayField( models.ForeignKey( libraries, on_delete=models.SET_NULL, null=True), size=3, null=True, blank=True)     ACCESS_CONTROL = {"mentor_advisor": [UserTypeEnum.ADVISOR.value]}
-    # todo store all schools and library informations in a program or for a way to access all schools and programs info?
-    start_date = models.DateTimeField()
-    renewal_date = models.DateTimeField(null=True, blank=True)
+    headmasters = models.ManyToManyField("users.HEADMASTER", through="HeadmastersProgramAssociation")
+    teachers = models.ManyToManyField("users.TEACHER", through="TeachersProgramAssociation")
+    managers = models.ManyToManyField("users.PROGRAM_MANAGER", through="ManagersProgramAssociation")
+    # todo add acess control for 54-56
+    # ? add implicit schools, library list, part of program to api seralizer ?
+    program_inception_date = models.DateTimeField() #offical start date
+    program_renewal_date = models.DateTimeField(null=True, blank=True) #yearly program renual before trips should be made
+    required_languages = models.CharField(max_length=254, choices=LanguageChoices)
+    secondary_languages = models.CharField(max_length=254, choices=LanguageChoices)
 
-    calendar_id = models.CharField(max_length=254, null=True)
+    #calender key for scheduling
+    googe_calendar_id = models.CharField(max_length=254, null=True)
+    
+    #communication tools
     facebook_group = models.CharField(max_length=254, null=True, blank=True)
     whatsapp_group = models.CharField(max_length=254, null=True)
     mentor_announcements = models.CharField(max_length=254, null=True, blank=True)
     mentor_collaboration = models.CharField(max_length=254, null=True, blank=True)
     students_group = models.CharField(max_length=254, null=True, blank=True)
     parents_group = models.CharField(max_length=254, null=True, blank=True)
-    required_languages = models.CharField(max_length=254, choices=LanguageChoices)
-    secondary_languages = models.CharField(max_length=254, choices=LanguageChoices)
 
-    # todo figure out a better way to store, cache, or link, different types of photos
+    #program specific resources
+    notion_url = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
+    googleDrive_url = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
+    googleClassroom_url = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
+    workplace_resources = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
     program_googlePhotos = models.URLField(max_length=500, null=True, blank=True, help_text="url link to google drive program photo folder")
+
+    # local village culture information
+    program_googlePhotos = models.URLField(max_length=500, null=True, blank=True, help_text="url link to google drive program photo folder")
+    # todo figure out a better way to store, cache, or link, different types of photos
     village_info_link = models.CharField(max_length=500, null=True, blank=True)
     village_chief = models.CharField(max_length=254, null=True, blank=True)
     chief_contact = models.CharField(max_length=254, null=True, blank=True)
@@ -102,6 +109,48 @@ class Program(BaseUUIDModel):
 
     def has_object_read_permission(self, request):
         return self.has_object_write_permission(request)
+
+class HeadmastersProgramAssociation(BaseUUIDModel):
+    """
+    This connects the Headmasters to Program Object
+    """
+
+    headmaster = models.ForeignKey(
+        "users.HEADMASTER", on_delete=models.SET_NULL, null=True, related_name="school-head, program leader"
+    )
+    Program = models.ForeignKey(
+        Program, on_delete=models.SET_NULL, null=True, related_name="mentor program"
+    )
+    priority = models.IntegerField(default=0)  # 0 is the highest priority
+    is_confirmed = models.BooleanField(default=False) # This is only editable by the program director or above
+
+class TeachersProgramAssociation(BaseUUIDModel):
+    """
+    This connects the Headmasters to Program Object
+    """
+
+    teacher = models.ForeignKey(
+        "users.TEACHER", on_delete=models.SET_NULL, null=True, related_name="lecturer"
+    )
+    Program = models.ForeignKey(
+        Program, on_delete=models.SET_NULL, null=True, related_name="mentor program"
+    )
+    priority = models.IntegerField(default=0)  # 0 is the highest priority
+    is_confirmed = models.BooleanField(default=False) # This is only editable by the program director or above
+    
+class ManagersProgramAssociation(BaseUUIDModel):
+    """
+    This connects the Headmasters to Program Object
+    """
+
+    manager = models.ForeignKey(
+        "users.Program_Manager", on_delete=models.SET_NULL, null=True, related_name="mentor_advisor, coordinator, support, admin"
+    )
+    Program = models.ForeignKey(
+        Program, on_delete=models.SET_NULL, null=True, related_name="slot_mentor"
+    )
+    priority = models.IntegerField(default=0)  # 0 is the highest priority
+    is_confirmed = models.BooleanField(default=False) # This is only editable by the program director or above
 
 
 class School(BaseUUIDModel):  # LATER keep track of student attendance, and grades
@@ -280,7 +329,7 @@ class Computer(BaseUUIDModel):
     program = models.ForeignKey(
         Program,
         on_delete=models.PROTECT,
-    )
+    ) # ! @vignesh is this implicitly stored?
     computer_number = models.IntegerField(null=True)
     computer_email = models.EmailField(max_length=70, null=True)
     room_id = models.CharField(max_length=100, null=True)
@@ -356,6 +405,7 @@ class Slot(BaseUUIDModel):
     slot_number = models.IntegerField(null=True, blank=True)
     # ? should we have a way to ID the slots across computers or programs? like an index to help admins find slots?
     # todo remove computer model as in the apis we can make implicit associations exlicit in apis
+    #! is the following implicitly stored
     computer = models.ForeignKey(
         Computer,
         on_delete=models.PROTECT,

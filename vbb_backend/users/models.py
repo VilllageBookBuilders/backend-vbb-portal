@@ -24,12 +24,18 @@ class UserTypeEnum(enum.Enum):
     
     PROGRAM_MANAGER = 600    
     EXECUTIVE = 700
-
+    # future roles to consider lead mentor, tutor vs mentor, coporate employee, donor, administrator
 
 UserTypeChoices = [(e.value, e.name) for e in UserTypeEnum]
 
 from vbb_backend.program.models import School, LanguageChoices, TIMEZONES
 
+class GenderEnum(enum.Enum):
+    MALE = "MALE"
+    FEMALE = "FEMALE"
+    OTHER = "OTHER"
+
+GenderChoices = [(e.value, e.name) for e in GenderEnum]
 
 class User(AbstractUser, BaseUUIDModel):
     """Default user for Village Book Builders Backend.
@@ -54,15 +60,18 @@ class User(AbstractUser, BaseUUIDModel):
     )
     
     # ? do users have default id??? or do we need to create such variable?
+    """
+    These are implicit, make them explict in api
     user_created_date = models.DateField(blank=True, null=True)
     last_active_date = models.DateField(blank=True, null=True) #last time they logged on
     user_updated_date = models.DateField(blank=True, null=True) # last time information chaged
+    """
     user_renewal_date = models.DateField(blank=True, null=True) # when does their membership end and need to be vetted again
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     date_of_birth = models.DateField(blank=True, null=True)
-    gender = models.CharField(max_length=254, choices=LanguageChoices) #make this a choice of male, female, & other
+    gender = models.CharField(max_length=254, choices=GenderChoices) 
     time_zone = models.CharField(max_length=32, choices=TIMEZONES)
     address = models.TextField(null=True, blank=True)
     country = models.CharField(max_length=70, null=True, blank=True)
@@ -220,6 +229,7 @@ class Mentor(BaseUUIDModel):
     mentorAdvisor_notes = models.BooleanField(default=None, null=True)
     
     """
+    showing implicit associations explicitly or recursively?
     Slot 
     Sessions <arraylist>
     Computer
@@ -251,16 +261,47 @@ class Mentor(BaseUUIDModel):
     Other Notes:
     """
     
+class Program_Director(BaseUUIDModel): 
     
+    #? should it be ProgramDirector or Program_director or Program_Director (naming convention?)?
     
+    user = models.OneToOneField(
+        "users.HEADMASTER",
+        on_delete=models.CASCADE,
+    )
+        
 class HeadMaster(BaseUUIDModel):
+    user = models.OneToOneField(
+        "users.TEACHER",
+        on_delete=models.CASCADE,
+    )
+    
+     # ! need to improve based on: https://docs.google.com/spreadsheets/d/1ZCP85_1sKUPxYpXwjoMevV_zryJIfGYW_nMoG-M-56Y/edit#gid=734282936
+
+    # Further HeadMaster Information Here
+    
+class Teacher(BaseUUIDModel):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
     )
     
-    # ! need to improve based on: https://docs.google.com/spreadsheets/d/1ZCP85_1sKUPxYpXwjoMevV_zryJIfGYW_nMoG-M-56Y/edit#gid=734282936
-
-    # Further HeadMaster Information Here
-
+class Program_Manager(BaseUUIDModel): #? naming convention see program director above?
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+    )
+    
+class Executive(BaseUUIDModel):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+    )    
+    
+class Parent(BaseUUIDModel):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+    )       
+    
 # ! add teacher, add mentor advisor, add parent, add executive, add program director JUST a headmaster with more privilages, add village_learner 

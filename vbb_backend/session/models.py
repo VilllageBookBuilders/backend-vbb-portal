@@ -29,8 +29,7 @@ class Session(BaseUUIDModel):
     slot = models.ForeignKey(
         Slot, on_delete=models.SET_NULL, null=True
     )  # Represents the Connected Slot
-    mentoring_notes = models.TextField(default=None, null=True, blank=True)
-    # todo subject/class field and a computer field stating which computer the session is part of
+    
     computer = models.ForeignKey(Computer, on_delete=models.SET_NULL, null=True)
     start = models.DateTimeField()  # All Date Times in UTC
     end = models.DateTimeField()  # All Date Times in UTC
@@ -38,17 +37,8 @@ class Session(BaseUUIDModel):
         "users.Student", through="StudentSessionAssociation"
     )
     mentors = models.ManyToManyField("users.Mentor", through="MentorSessionAssociation")
-    isHappening = models.BooleanField(default=False)
-    mentorComing = models.BooleanField(default=False)
-    menteeComing = models.BooleanField(default=False)
-    delay_notes = models.BooleanField(default=False)
-    # warnings, risks, complexities etc. make this a type variable? issue_warning  need to figure out user workflow + story for session warning + communication @sarthak
-    # if its easy for people to communicate over email or slack, there should be a simple way for mentors & mentees to communicate wether or not they are coming, the answer could be attendance, phones, parents, librian, idk but people should not need to wait
-    # alert 30 minutes if mentee does not show, for mentors to leave, if problem repeats for 3 times in a row with power/internet/issues, then alert libraian and figure out a way to keep mentor engaged in the process
-    # sarthak, we need to figure this out soon
-    warnings = models.TextField(default=None, null=True, blank=True)
-    issues = models.TextField(default=None, null=True, blank=True)
-    feedback = models.TextField(default=None, null=True, blank=True)
+    
+    
     infrastructure_notes = models.TextField(default=None, help_text= "Power, wifi, audio quality?", null=True, blank=True)
     mentorAdvisor_notes = models.TextField(default=None, null=True, blank=True)
     headmaster_notes = models.TextField(default=None, null=True, blank=True)
@@ -76,8 +66,20 @@ class StudentSessionAssociation(BaseUUIDModel):
         Session, on_delete=models.SET_NULL, null=True, related_name="session_student"
     )
     attended = models.BooleanField(default=False)
-
-
+    mentoring_notes = models.TextField(default=None, null=True, blank=True)
+    # todo subject/class field and a computer field stating which computer the session is part of
+    
+    isHappening = models.BooleanField(default=False)
+    mentorComing = models.BooleanField(default=False)
+    menteeComing = models.BooleanField(default=False)
+    delay_notes = models.BooleanField(default=False)
+    # warnings, risks, complexities etc. make this a type variable? issue_warning  need to figure out user workflow + story for session warning + communication @sarthak
+    # if its easy for people to communicate over email or slack, there should be a simple way for mentors & mentees to communicate wether or not they are coming, the answer could be attendance, phones, parents, librian, idk but people should not need to wait
+    # alert 30 minutes if mentee does not show, for mentors to leave, if problem repeats for 3 times in a row with power/internet/issues, then alert libraian and figure out a way to keep mentor engaged in the process
+    # sarthak, we need to figure this out soon
+    warnings = models.TextField(default=None, null=True, blank=True)
+    issues = models.TextField(default=None, null=True, blank=True)
+    feedback = models.TextField(default=None, null=True, blank=True)
 class MentorSessionAssociation(BaseUUIDModel):
     """
     This connects the student user object with a Session Object
@@ -93,3 +95,17 @@ class MentorSessionAssociation(BaseUUIDModel):
         Session, on_delete=models.SET_NULL, null=True, related_name="session_mentor"
     )
     attended = models.BooleanField(default=False)
+    mentoring_notes = models.TextField(default=None, null=True, blank=True)
+    # todo subject/class field and a computer field stating which computer the session is part of
+    
+    isHappening = models.BooleanField(default=False)
+    mentorComing = models.BooleanField(default=False)
+    menteeComing = models.BooleanField(default=False)
+    delay_notes = models.BooleanField(default=False)
+    # warnings, risks, complexities etc. make this a type variable? issue_warning  need to figure out user workflow + story for session warning + communication @sarthak
+    # if its easy for people to communicate over email or slack, there should be a simple way for mentors & mentees to communicate wether or not they are coming, the answer could be attendance, phones, parents, librian, idk but people should not need to wait
+    # alert 30 minutes if mentee does not show, for mentors to leave, if problem repeats for 3 times in a row with power/internet/issues, then alert libraian and figure out a way to keep mentor engaged in the process
+    # sarthak, we need to figure this out soon
+    warnings = models.TextField(default=None, null=True, blank=True)
+    issues = models.TextField(default=None, null=True, blank=True)
+    feedback = models.TextField(default=None, null=True, blank=True)
