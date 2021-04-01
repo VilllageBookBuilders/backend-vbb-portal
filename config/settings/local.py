@@ -1,5 +1,6 @@
 from .base import *  # noqa
 from .base import env
+import os
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -71,4 +72,22 @@ SIMPLE_JWT = {
         minutes=env("JWT_REFRESH_TOKEN_LIFETIME", default=3000000000)
     ),
     "ROTATE_REFRESH_TOKENS": True,
+}
+
+#configuration which writes all logging from logger to a local file
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': './logs/django.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+    },
 }

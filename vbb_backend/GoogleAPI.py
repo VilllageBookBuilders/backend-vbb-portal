@@ -4,11 +4,12 @@ import logging
 import base64
 import requests
 import requests_oauth2
+from google.api_core.exceptions import AlreadyExists, NotFound
+from googleapiclient.errors import HttpError
 from oauth2client import file, client
 from google.oauth2 import service_account
 from googleapiclient import discovery, _auth
 from googleapiclient.discovery import build
-
 from datetime import datetime, timedelta
 from apiclient import errors
 from requests_oauth2 import OAuth2BearerToken
@@ -19,8 +20,6 @@ from bs4 import BeautifulSoup
 import re
 import random
 import string
-
-logger = logging.getLogger(__name__)
 
 
 class GoogleApi:
@@ -57,6 +56,9 @@ class GoogleApi:
           personalEmail: Mentor Personal Email
 
         """
+        logging.basicConfig(filename='./logs/googleAccount.log', level=logging.DEBUG,
+                            format='%(asctime)s:%(levelname)s:%(message)s')
+        #logging here info type all the parameters coming inside to this func
         http = _auth.authorized_http(self.__webdev_cred)
         self.__webdev_cred.refresh(http._request)
         url = "https://www.googleapis.com/admin/directory/v1/users"
@@ -110,7 +112,7 @@ class GoogleApi:
 
         https://developers.google.com/calendar/v3/reference/events/insert 
         The calendarId is the Calendar identifier. Value type string
-        The request body suppy an event resource
+        The request body supply an event resource
 
         Args:
             mentorFirstName: Mentor's First Name
@@ -125,54 +127,65 @@ class GoogleApi:
         Returns:
             An object event containing all properties of the session
         """
+        logging.basicConfig(filename='./logs/createEvent.log', level=logging.DEBUG,
+                            format = '%(asctime)s:%(levelname)s:%(message)s')
+        try:
+          calendar_service = build('calendar', 'v3', credentials=self.__mentor_cred)
+          timezone = 'UTC'
+          start_date_time_obj = datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S')
+          end_time = start_date_time_obj + timedelta(hours=duration)
+          end_date_formated = end_date.replace(':', '')
+          end_date_formated = end_date_formated.replace('-', '')
+          end_date_formated += 'Z'
         
-        calendar_service = build('calendar', 'v3', credentials=self.__mentor_cred)
-        timezone = 'UTC'
-        start_date_time_obj = datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S')
-        end_time = start_date_time_obj + timedelta(hours=duration)
-        end_date_formated = end_date.replace(':', '')
-        end_date_formated = end_date_formated.replace('-', '')
-        end_date_formated += 'Z'
+          event = {
+              'summary': mentorFirstName + ' - VBB Mentoring Session',
+              'start': {
+                  'dateTime': start_date_time_obj.strftime("%Y-%m-%dT%H:%M:%S"),
+                  'timeZone': timezone,
+              },
+              'end': {
+                  'dateTime': end_time.strftime("%Y-%m-%dT%H:%M:%S"),
+                  'timeZone': timezone,
+              },
+              'recurrence': [
+                  'RRULE:FREQ=WEEKLY;UNTIL=' + end_date_formated
+              ],
+              'attendees': [
+                  {'email': menteeEmail},
+                  {'email': mentorEmail},
+                  {'email': personalEmail},
+                  {'email': directorEmail},
+                  {'email': room, 'resource': "true"}
+              ],
+              'reminders': {
+                  'useDefault': False,
+                  'overrides': [
+                      {'method': 'email', 'minutes': 24 * 60},  # reminder 24 hrs before event
+                      # pop up reminder, 10 min before event
+                      {'method': 'popup', 'minutes': 10},
+                  ],
+              },
+              'conferenceData': {
+                  'createRequest': {
+                      'requestId': ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+                  }
+              },
+          }
 
-        event = {
-            'summary': mentorFirstName + ' - VBB Mentoring Session',
-            'start': {
-                'dateTime': start_date_time_obj.strftime("%Y-%m-%dT%H:%M:%S"),
-                'timeZone': timezone,
-            },
-            'end': {
-                'dateTime': end_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                'timeZone': timezone,
-            },
-            'recurrence': [
-                'RRULE:FREQ=WEEKLY;UNTIL=' + end_date_formated
-            ],
-            'attendees': [
-                {'email': menteeEmail},
-                {'email': mentorEmail},
-                {'email': personalEmail},
-                {'email': directorEmail},
-                {'email': room, 'resource': "true"}
-            ],
-            'reminders': {
-                'useDefault': False,
-                'overrides': [
-                    {'method': 'email', 'minutes': 24 * 60},  # reminder 24 hrs before event
-                    # pop up reminder, 10 min before event
-                    {'method': 'popup', 'minutes': 10},
-                ],
-            },
-            'conferenceData': {
-                'createRequest': {
-                    'requestId': ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-                }
-            },
-        }
-        event_obj = calendar_service.events().insert(calendarId=calendar_id, body=event,
-                                                    sendUpdates="all", conferenceDataVersion=1).execute()
-        print(event_obj['id'])
+          event_obj = calendar_service.events().insert(calendarId=calendar_id, body=event,
+                                                      sendUpdates="all", conferenceDataVersion=1).execute()
+          logging.debug(event_obj)
+          return(event_obj['id'], event_obj['hangoutLink'])
 
-        return(event_obj['id'], event_obj['hangoutLink'])
+        except HttpError as e:
+          logging.debug(e)
+          if e.resp.status in [403, 404, 500, 503]:
+              raise ErrorCalendarEvent("Something wrong creating the event => see ./logs/createEvent.log")
+        except ValueError as e:
+          logging.debug(e)
+          print("Something went wrong with the datetime")
+          
         
   def email_send(self, to, subject, templatePath, extraData=None, cc=None):
         
@@ -184,6 +197,8 @@ class GoogleApi:
         templatePath: The path to reference a html template.
 
       """
+      logging.basicConfig(filename='./logs/sendEmail.log', level=logging.DEBUG,
+                          format='%(asctime)s:%(levelname)s:%(message)s')
       http = _auth.authorized_http(self.__mentor_cred)
       email_service = build('gmail', 'v1', http=http)
       personalizedPath = os.path.join(
@@ -223,49 +238,78 @@ class GoogleApi:
         end_date: New end date of the session after update
 
       """
-      calendar_service = build('calendar', 'v3', credentials=self.__mentor_cred)
-      event = calendar_service.events().get(
-          calendarId=calendar_id, eventId=event_id).execute()
-      if (end_date != None):
-        end_date_formated = end_date.replace(':', '')
-        end_date_formated = end_date_formated.replace('-', '')
-        end_date_formated += 'Z'
-        event['recurrence'] = ['RRULE:FREQ=WEEKLY;UNTIL=' + end_date_formated]
-        event['summary'] = 'update worked 2021!'
-        updated_event = calendar_service.events().update(
-        calendarId=calendar_id, eventId=event['id'], body=event).execute()
+      logging.basicConfig(filename='./logs/updateEvent.log', level=logging.DEBUG,
+                          format='%(asctime)s:%(levelname)s:%(message)s')
+      calendar_service = build('calendar', 'v3', credentials = self.__mentor_cred)
+      try:
+        event = calendar_service.events().get(
+            calendarId=calendar_id, eventId=event_id).execute()
+        logging.debug(event)
+
+        if (end_date != None):
+          end_date_formated = end_date.replace(':', '')
+          end_date_formated = end_date_formated.replace('-', '')
+          end_date_formated += 'Z'
+          event['recurrence'] = ['RRULE:FREQ=WEEKLY;UNTIL=' + end_date_formated]
+          event['summary'] = 'Event Updated'
+
+        updated_event = calendar_service.events().update(calendarId=calendar_id, eventId=event['id'],body=event).execute()
+        logging.debug(updated_event)
+
+      except HttpError as e:
+        logging.debug(e)
+        if e.resp.status in [403, 404, 500, 503]:
+            raise ErrorUpdateEvent(
+                "Something wrong updating event => see ./logs/updateEvent.log")
+
+
+class GoogleException(Exception):
+    """Base class for the other exceptions"""
+    pass
+
+class ErrorCalendarEvent(GoogleException):
+    """Raised when the event object has not been created"""
+    pass
+
+class ErrorUpdateEvent(GoogleException):    
+      """Raised when the event object has not been created"""
+      pass
 
 
 
+# # FOR TESTING PURPOSES -- REMOVE 
+# def testFunction():
+#     g = GoogleApi()
 
-
-# # FOR TESTING PURPOSES -- REMOVE IN PROD
-def testFunction():
-    g = GoogleApi()
-
-  # g.shift_event("c_oha2uv7abp2vs6jlrl96aeoje8@group.calendar.google.com","0vjr0aj0e3nv1tmc2ui2mtshbi")
+#   # g.shift_event("c_oha2uv7abp2vs6jlrl96aeoje8@group.calendar.google.com","0vjr0aj0e3nv1tmc2ui2mtshbi")
 
     # g.account_create(
-    #     "Testname",
-    #     "TestLastname",
-    #     "mentor@villagementors.org")
+    #     '',
+    #     '',
+    #     '')
 
-    # g.calendar_event(
-    #     "TestNewCalendarEvent",
-    #     "test@villagementors.org",
-    #     "mentoremail@villagementors.org",
-    #     "testmentee@gmail.com",
-    #     "testdirector@gmail.com",
-    #     "2021-04-24T23:30:00", "2021-10-30T22:00:00",
-    #     "c_oha2uv7abp2vs6jlrl96aeoje8@group.calendar.google.com",
-    #     "ximena.rodriguez1@villagementors.org")
 
-    # g.update_event(
-      # "c_oha2uv7abp2vs6jlrl96aeoje8@group.calendar.google.com",
-      # "b9uhgcrdjt6gea7nlj82rubig8",
-      # "2022-09-27T22:00:00")
+    # g.calendar_event( 
+    #   "NameEvent",
+    #   "test@villagementors.org",
+    #   "mentoremail@villagementors.org",
+    #   "testmentee@gmail.com",
+    #   "testdirector@gmail.com",
+    #   "yyyy-mm-ddThh:mm:ss", "yyyy-mm-ddThh:mm:ss",
+    #   "c_oha2uv7abp2vs6jlrl96aeoje8@group.calendar.google.com",
+    #   "mentor@villagementors.org")
 
-#   print("updated")
 
+#     g.update_event(
+#       "{calendarId}",
+#       "{eventId}",
+#       "{yyyy-mm-ddThh:mm:ss}")
 
 # testFunction()
+
+
+
+
+
+
+
