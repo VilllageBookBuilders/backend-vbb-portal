@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
-from config import settings
+from django.conf import settings
 from vbb_backend.otherIntegrations.mailChimp.mailChimp import subscribe_newsletter
 from vbb_backend.utils.models.base import BaseUUIDModel
 from vbb_backend.utils.models.question import QuestionareAnswers, QuestionareQuestions
