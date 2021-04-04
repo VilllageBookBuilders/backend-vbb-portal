@@ -284,7 +284,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_AUTHENTICATION_METHOD = "username"
+ACCOUNT_AUTHENTICATION_METHOD = "personal_email"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
@@ -326,8 +326,10 @@ SIMPLE_JWT = {
 }
 
 # mailchimp-marketing - https://github.com/mailchimp/mailchimp-marketing-python
-MAILCHIMP_API_KEY = env.str("MAILCHIMP_API_KEY", default='4f10e2925406ba5a1ce0edf5f766de1d-us2')
-MAILCHIMP_SERVER = env.str("MAILCHIMP_SERVER", default='us2')
-MAILCHIMP_LIST_ID = env.str("MAILCHIMP_LIST_ID", default='cc12143c34')
+MAILCHIMP_API_KEY = env.str(
+    "MAILCHIMP_API_KEY", default="4f10e2925406ba5a1ce0edf5f766de1d-us2"
+)
+MAILCHIMP_SERVER = env.str("MAILCHIMP_SERVER", default="us2")
+MAILCHIMP_LIST_ID = env.str("MAILCHIMP_LIST_ID", default="cc12143c34")
 
 IS_PRODUCTION = False

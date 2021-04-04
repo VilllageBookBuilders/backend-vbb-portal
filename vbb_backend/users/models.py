@@ -40,6 +40,8 @@ class User(AbstractUser, BaseUUIDModel):
 
     VerificationLevelChoices = [(e.value, e.name) for e in VerificationLevelEnum]
 
+    username = None  # Override Username Field
+
     user_type = models.IntegerField(
         choices=UserTypeChoices, default=UserTypeEnum.MENTOR.value
     )
@@ -73,6 +75,8 @@ class User(AbstractUser, BaseUUIDModel):
     notes = models.TextField(
         max_length=512, null=True, blank=True
     )  # Super User Specific
+
+    USERNAME_FIELD = "personal_email"
 
     def is_verified(self):
         return self.verification_level == self.VerificationLevelEnum.VERIFIED.value
