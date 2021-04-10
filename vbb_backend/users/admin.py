@@ -1,11 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from vbb_backend.users.models import HeadMaster, Mentor, Student, User
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django import forms
 
 
 class CustomUserAdmin(UserAdmin):
