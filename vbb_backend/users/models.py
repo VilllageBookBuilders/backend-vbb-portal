@@ -26,6 +26,43 @@ UserTypeChoices = [(e.value, e.name) for e in UserTypeEnum]
 from vbb_backend.program.models import TIMEZONES, LanguageChoices, School
 
 
+from django.contrib.auth.base_user import BaseUserManager
+from django.utils.translation import ugettext_lazy as _
+
+
+class CustomUserManager(BaseUserManager):
+    """
+    Custom user model manager where email is the unique identifiers
+    for authentication instead of usernames.
+    """
+
+    def create_user(self, email, password, **extra_fields):
+        """
+        Create and save a User with the given email and password.
+        """
+        if not email:
+            raise ValueError(_("The Email must be set"))
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email, password, **extra_fields):
+        """
+        Create and save a SuperUser with the given email and password.
+        """
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError(_("Superuser must have is_staff=True."))
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError(_("Superuser must have is_superuser=True."))
+        return self.create_user(email, password, **extra_fields)
+
+
 class User(AbstractUser, BaseUUIDModel):
     """Default user for Village Book Builders Backend.
     The AbstractUser Model already includes most of the required fields for a User.
@@ -41,6 +78,8 @@ class User(AbstractUser, BaseUUIDModel):
     VerificationLevelChoices = [(e.value, e.name) for e in VerificationLevelEnum]
 
     username = None  # Override Username Field
+
+    email = models.EmailField(_("email address"), unique=True)
 
     user_type = models.IntegerField(
         choices=UserTypeChoices, default=UserTypeEnum.MENTOR.value
@@ -76,7 +115,12 @@ class User(AbstractUser, BaseUUIDModel):
         max_length=512, null=True, blank=True
     )  # Super User Specific
 
-    USERNAME_FIELD = "personal_email"
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+    objects = CustomUserManager()
+
+    def __str__(self):
+        return self.email
 
     def is_verified(self):
         return self.verification_level == self.VerificationLevelEnum.VERIFIED.value
