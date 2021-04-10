@@ -21,7 +21,15 @@ class CustomUserAdmin(UserAdmin):
         (None, {"fields": ("email", "password")}),
         (
             "Management",
-            {"fields": ("user_type", "personal_email", "verification_level")},
+            {
+                "fields": (
+                    "user_type",
+                    "personal_email",
+                    "verification_level",
+                    "first_name",
+                    "last_name",
+                )
+            },
         ),
         ("Permissions", {"fields": ("is_staff", "is_active", "is_superuser")}),
     )
