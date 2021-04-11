@@ -19,6 +19,7 @@ class LanguageEnum(enum.Enum):
     TAGALOG = "TAGALOG"
     HINDI = "HINDI"
 
+
 LanguageChoices = [(e.value, e.name) for e in LanguageEnum]
 
 
@@ -39,33 +40,43 @@ class Program(BaseUUIDModel):
         Library
         Computer (?)
     """
-    # todo make id explict on apis
-    # ! make id explict on apis 
-    
+
     # primary information
     name = models.CharField(max_length=40, blank=False)
     time_zone = models.CharField(max_length=32, choices=TIMEZONES)
     # todo add field type = models.ForeignKey(ContentType) types include excellent, good, poor, gov/low-fee, special status
-    latitude = models.FloatField(min_value=-90, max_value=90, null=True, blank=True)
-    longitude = models.FloatField(min_value=-180, max_value=180, null=True, blank=True)
+    latitude = models.DecimalField(max_digits=8, decimal_places=3)
+    longitude = models.DecimalField(max_digits=8, decimal_places=3)
     program_director = models.ForeignKey(
-        "users.User", on_delete=models.SET_NULL, null=True
+        "users.ProgramDirector", on_delete=models.SET_NULL, null=True
     )
-    ACCESS_CONTROL = {"program_director": [UserTypeEnum.ADVISOR.value]}
-    headmasters = models.ManyToManyField("users.HEADMASTER", through="HeadmastersProgramAssociation")
-    teachers = models.ManyToManyField("users.TEACHER", through="TeachersProgramAssociation")
-    managers = models.ManyToManyField("users.PROGRAM_MANAGER", through="ManagersProgramAssociation")
-    # todo add acess control for 54-56
-    # ? add implicit schools, library list, part of program to api seralizer ?
-    program_inception_date = models.DateTimeField() #offical start date
-    program_renewal_date = models.DateTimeField(null=True, blank=True) #yearly program renual before trips should be made
-    required_languages = models.CharField(max_length=254, choices=LanguageChoices)
-    secondary_languages = models.CharField(max_length=254, choices=LanguageChoices)
+    headmasters = models.ManyToManyField(
+        "users.HeadMaster", through="HeadmastersProgramAssociation"
+    )
+    teachers = models.ManyToManyField(
+        "users.Teacher", through="TeachersProgramAssociation"
+    )
+    managers = models.ManyToManyField(
+        "users.ProgramManager", through="ManagersProgramAssociation"
+    )
+    # todo add access control for 54-56
+    program_inception_date = models.DateTimeField(
+        null=True, blank=True
+    )  # offical start date
+    program_renewal_date = models.DateTimeField(
+        null=True, blank=True
+    )  # yearly program renual before trips should be made
+    required_languages = models.CharField(
+        max_length=254, choices=LanguageChoices, default=None, null=True
+    )
+    secondary_languages = models.CharField(
+        max_length=254, choices=LanguageChoices, default=None, null=True
+    )
 
-    #calender key for scheduling
+    # calender key for scheduling
     googe_calendar_id = models.CharField(max_length=254, null=True)
-    
-    #communication tools
+
+    # communication tools
     facebook_group = models.CharField(max_length=254, null=True, blank=True)
     whatsapp_group = models.CharField(max_length=254, null=True)
     mentor_announcements = models.CharField(max_length=254, null=True, blank=True)
@@ -73,21 +84,45 @@ class Program(BaseUUIDModel):
     students_group = models.CharField(max_length=254, null=True, blank=True)
     parents_group = models.CharField(max_length=254, null=True, blank=True)
 
-    #program specific resources
-    notion_url = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
-    googleDrive_url = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
-    googleClassroom_url = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
-    workplace_resources = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
-    program_googlePhotos = models.URLField(max_length=500, null=True, blank=True, help_text="url link to google drive program photo folder")
+    # program specific resources
+    notion_url = models.URLField(
+        max_length=500, null=True, blank=True, help_text="url link"
+    )
+    googleDrive_url = models.URLField(
+        max_length=500, null=True, blank=True, help_text="url link"
+    )
+    googleClassroom_url = models.URLField(
+        max_length=500, null=True, blank=True, help_text="url link"
+    )
+    workplace_resources = models.URLField(
+        max_length=500, null=True, blank=True, help_text="url link"
+    )
+    program_googlePhotos = models.URLField(
+        max_length=500,
+        null=True,
+        blank=True,
+        help_text="url link to google drive program photo folder",
+    )
 
     # local village culture information
-    program_googlePhotos = models.URLField(max_length=500, null=True, blank=True, help_text="url link to google drive program photo folder")
+    program_googlePhotos = models.URLField(
+        max_length=500,
+        null=True,
+        blank=True,
+        help_text="url link to google drive program photo folder",
+    )
     # todo figure out a better way to store, cache, or link, different types of photos
     village_info_link = models.CharField(max_length=500, null=True, blank=True)
     village_chief = models.CharField(max_length=254, null=True, blank=True)
     chief_contact = models.CharField(max_length=254, null=True, blank=True)
     ministry_education_contact = models.TextField(null=True, blank=True)
-    notes = models.TextField(help_text= "comments, suggestions, notes, events, open-house dates, mentor program break dates, internet connectivity, power avalibility, state of infrastructure, etc", null=True, blank=True)
+    notes = models.TextField(
+        help_text="comments, suggestions, notes, events, open-house dates, mentor program break dates, internet connectivity, power avalibility, state of infrastructure, etc",
+        null=True,
+        blank=True,
+    )
+
+    ACCESS_CONTROL = {"program_director": [UserTypeEnum.PROGRAM_MANAGER.value]}
 
     @staticmethod
     def has_create_permission(request):
@@ -110,19 +145,26 @@ class Program(BaseUUIDModel):
     def has_object_read_permission(self, request):
         return self.has_object_write_permission(request)
 
+
 class HeadmastersProgramAssociation(BaseUUIDModel):
     """
     This connects the Headmasters to Program Object
     """
 
     headmaster = models.ForeignKey(
-        "users.HEADMASTER", on_delete=models.SET_NULL, null=True, related_name="school-head, program leader"
+        "users.HEADMASTER",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="program_headmaster",
     )
-    Program = models.ForeignKey(
-        Program, on_delete=models.SET_NULL, null=True, related_name="mentor program"
+    program = models.ForeignKey(
+        Program, on_delete=models.SET_NULL, null=True, related_name="headmaster_program"
     )
     priority = models.IntegerField(default=0)  # 0 is the highest priority
-    is_confirmed = models.BooleanField(default=False) # This is only editable by the program director or above
+    is_confirmed = models.BooleanField(
+        default=False
+    )  # This is only editable by the program director or above
+
 
 class TeachersProgramAssociation(BaseUUIDModel):
     """
@@ -130,27 +172,38 @@ class TeachersProgramAssociation(BaseUUIDModel):
     """
 
     teacher = models.ForeignKey(
-        "users.TEACHER", on_delete=models.SET_NULL, null=True, related_name="lecturer"
+        "users.TEACHER",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="program_teacher",
     )
-    Program = models.ForeignKey(
-        Program, on_delete=models.SET_NULL, null=True, related_name="mentor program"
+    program = models.ForeignKey(
+        Program, on_delete=models.SET_NULL, null=True, related_name="teacher_program"
     )
     priority = models.IntegerField(default=0)  # 0 is the highest priority
-    is_confirmed = models.BooleanField(default=False) # This is only editable by the program director or above
-    
+    is_confirmed = models.BooleanField(
+        default=False
+    )  # This is only editable by the program director or above
+
+
 class ManagersProgramAssociation(BaseUUIDModel):
     """
     This connects the Headmasters to Program Object
     """
 
     manager = models.ForeignKey(
-        "users.Program_Manager", on_delete=models.SET_NULL, null=True, related_name="mentor_advisor, coordinator, support, admin"
+        "users.ProgramManager",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="program_manager",
     )
-    Program = models.ForeignKey(
-        Program, on_delete=models.SET_NULL, null=True, related_name="slot_mentor"
+    program = models.ForeignKey(
+        Program, on_delete=models.SET_NULL, null=True, related_name="manager_program"
     )
     priority = models.IntegerField(default=0)  # 0 is the highest priority
-    is_confirmed = models.BooleanField(default=False) # This is only editable by the program director or above
+    is_confirmed = models.BooleanField(
+        default=False
+    )  # This is only editable by the program director or above
 
 
 class School(BaseUUIDModel):  # LATER keep track of student attendance, and grades
@@ -169,11 +222,14 @@ class School(BaseUUIDModel):  # LATER keep track of student attendance, and grad
 
     TODO: probably just remove/comment out school and classroom until we iron out our plans for working with schools
     """
+
     name = models.CharField(max_length=40, blank=False)
     program = models.ForeignKey(Program, on_delete=models.SET_NULL, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    school_bio = models.TextField(help_text = "mission, values, vision, pitch", null=True, blank=True) 
+    school_bio = models.TextField(
+        help_text="mission, values, vision, pitch", null=True, blank=True
+    )
     """
     we need to figure out if we want static school pages or populating schoo pages? for example, day in the life of a student at a school, we need to figure this out @sarthak
     then begs the questions do we even need this many fields in the backend like most of these could just be static on the front-end what is our data science plan
@@ -181,12 +237,14 @@ class School(BaseUUIDModel):  # LATER keep track of student attendance, and grad
     school_successes = models.TextField(null=True, blank=True)
     school_goals = models.TextField(null=True, blank=True)
     school_needs = models.TextField(null=True, blank=True)
-    studentNum =  models.IntegerField(null=True, blank=True)
+    studentNum = models.IntegerField(null=True, blank=True)
     teacherNum = models.IntegerField(null=True, blank=True)
     vbb_rating = models.TextField(null=True, blank=True)
     # todo add field type = models.ForeignKey(ContentType) types include excellent, good, poor, gov/low-fee, special status
-    #figure out how school data & reporting is should be stored in portal or in sheets
-    monthly_fundingDollars = models.DecimalField(Max_digits=10, decimal_places=6,null=True, blank=True)
+    # figure out how school data & reporting is should be stored in portal or in sheets
+    monthly_fundingDollars = models.DecimalField(
+        max_digits=10, decimal_places=6, null=True, blank=True
+    )
     school_infrastructureNotes = models.TextField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
 
@@ -329,23 +387,23 @@ class Computer(BaseUUIDModel):
     program = models.ForeignKey(
         Program,
         on_delete=models.PROTECT,
-    ) # ! @vignesh is this implicitly stored?
+    )
     computer_number = models.IntegerField(null=True)
     computer_email = models.EmailField(max_length=70, null=True)
     room_id = models.CharField(max_length=100, null=True)
     notes = models.TextField(null=True, blank=True)
-    
+
     computer_model = models.CharField(max_length=100, null=True, blank=True)
     manufactured_date = models.TextField(null=True, blank=True)
     mp_start_date = models.TextField(null=True, blank=True)
-        #estimate renewal date
+    # estimate renewal date
     harward_specifications = models.TextField(null=True, blank=True)
     computer_issues = models.TextField(null=True, blank=True)
     has_headphones = models.BooleanField(default=False)
     headphone_specs = models.TextField(null=True, blank=True)
     wifi_connectivityInfo = models.TextField(null=True, blank=True)
     software_Notes = models.TextField(null=True, blank=True)
-    
+
     """"
     connection to andriodx86, etc, remote control etc, add as needed. 
     ? again not sure what sure what information should we stored and what should just be static ?
@@ -536,7 +594,6 @@ class StudentSlotAssociation(BaseUUIDModel):
         return self.has_object_write_permission(request)
 
 
-
 class MentorSlotAssociation(BaseUUIDModel):
     """
     This connects the student user object with a Slot Object
@@ -549,4 +606,6 @@ class MentorSlotAssociation(BaseUUIDModel):
         Slot, on_delete=models.SET_NULL, null=True, related_name="slot_mentor"
     )
     priority = models.IntegerField(default=0)  # 0 is the highest priority
-    is_confirmed = models.BooleanField(default=False) # This is only editable by the program director or above
+    is_confirmed = models.BooleanField(
+        default=False
+    )  # This is only editable by the program director or above

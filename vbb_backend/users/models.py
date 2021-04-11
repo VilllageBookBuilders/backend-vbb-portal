@@ -15,27 +15,31 @@ from vbb_backend.utils.models.question import QuestionareAnswers, QuestionareQue
 
 class UserTypeEnum(enum.Enum):
     STUDENT = 100
-    PARENT = 102 
-    
+    PARENT = 150
+
     MENTOR = 200
     TEACHER = 300
     HEADMASTER = 400
-    PROGRAM_DIRECTOR = 500 
-    
-    PROGRAM_MANAGER = 600    
+    PROGRAM_DIRECTOR = 500
+
+    PROGRAM_MANAGER = 600
     EXECUTIVE = 700
     # future roles to consider lead mentor, tutor vs mentor, coporate employee, donor, administrator
+
 
 UserTypeChoices = [(e.value, e.name) for e in UserTypeEnum]
 
 from vbb_backend.program.models import School, LanguageChoices, TIMEZONES
+
 
 class GenderEnum(enum.Enum):
     MALE = "MALE"
     FEMALE = "FEMALE"
     OTHER = "OTHER"
 
+
 GenderChoices = [(e.value, e.name) for e in GenderEnum]
+
 
 class User(AbstractUser, BaseUUIDModel):
     """Default user for Village Book Builders Backend.
@@ -58,7 +62,7 @@ class User(AbstractUser, BaseUUIDModel):
     verification_level = models.IntegerField(
         choices=VerificationLevelChoices, default=VerificationLevelEnum.LEVEL1.value
     )
-    
+
     # ? do users have default id??? or do we need to create such variable?
     """
     These are implicit, make them explict in api
@@ -66,33 +70,37 @@ class User(AbstractUser, BaseUUIDModel):
     last_active_date = models.DateField(blank=True, null=True) #last time they logged on
     user_updated_date = models.DateField(blank=True, null=True) # last time information chaged
     """
-    user_renewal_date = models.DateField(blank=True, null=True) # when does their membership end and need to be vetted again
+    user_renewal_date = models.DateField(
+        blank=True, null=True
+    )  # when does their membership end and need to be vetted again
 
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
     date_of_birth = models.DateField(blank=True, null=True)
-    gender = models.CharField(max_length=254, choices=GenderChoices) 
+    gender = models.CharField(
+        max_length=254, choices=GenderChoices, default=None, null=True
+    )
     time_zone = models.CharField(max_length=32, choices=TIMEZONES)
     address = models.TextField(null=True, blank=True)
     country = models.CharField(max_length=70, null=True, blank=True)
     state = models.CharField(max_length=70, null=True, blank=True)
     city = models.CharField(max_length=70, null=True, blank=True)
-    
-    # figure out how do nickname ..> deidentification? like choose an avatar like a pokemon or something? sarthak talk with brett as he really wants this as investors/donors want deintentification
-    
-    primary_language = models.CharField(max_length=254, choices=LanguageChoices)
-    secondary_language = models.CharField(max_length=254, choices=LanguageChoices)
 
-    vbb_email = models.EmailField(
-        null=True, unique=True, verbose_name=_("VBB Email"), help_text= "@villagementors.org"
+    # figure out how do nickname ..> deidentification? like choose an avatar like a pokemon or something? sarthak talk with brett as he really wants this as investors/donors want deintentification
+
+    primary_language = models.CharField(
+        max_length=254, choices=LanguageChoices, default=None, null=True
     )
-    phone_number = models.PhoneNumberField(blank=True, verbose_name=_("Phone Number"))
+    secondary_language = models.CharField(
+        max_length=254, choices=LanguageChoices, default=None, null=True
+    )
+
+    personal_email = models.EmailField(
+        null=True, unique=True, verbose_name=_("Personal Email")
+    )
+    phone = PhoneNumberField(blank=True, verbose_name=_("Phone Number"))
     avaibility_times = models.TextField(null=True, blank=True)
     user_bio = models.TextField(null=True, blank=True)
 
-    notes = models.TextField(
-        null=True, blank=True
-    )  # Super User Specific
+    notes = models.TextField(null=True, blank=True)  # Super User Specific
 
     def is_verified(self):
         return self.verification_level == self.VerificationLevelEnum.VERIFIED.value
@@ -178,39 +186,41 @@ class Mentor(BaseUUIDModel):
     )
     # Further Mentor Information Here
     # ! delete since moved to user class? : address = models.TextField()
-    personal_email = models.EmailField(
-        null=True, unique=True, verbose_name=_("Personal Email")
-    )
+
     isInterested = models.BooleanField(default=None, null=True)
-    isIncomplete =  models.BooleanField(default=None, null=True)
+    isIncomplete = models.BooleanField(default=None, null=True)
     follow_up = models.BooleanField(default=None, null=True)
-    # follow_up_dates = 
+    # follow_up_dates =
     # ? i don't understand  how do to arrays or lists
     occupation = models.CharField(
         max_length=70, null=True, blank=True, verbose_name=_("Occupation")
     )
-    #if statement that only if college or high school student chapter is shown? should we do that?
+    # if statement that only if college or high school student chapter is shown? should we do that?
     vbb_chapter = models.CharField(
         max_length=40, null=True, blank=True, verbose_name=_("VBB Chapter")
     )
     affiliation = models.CharField(
         max_length=70, null=True, blank=True, verbose_name=_("Affiliation")
     )
-    isinCoporateEmployeeProgram = models.BooleanField(default=None, null=True) # will this be helpful or just do it based on emails? @sarthak
-    referral_source = models.models.TextField(
+    isinCoporateEmployeeProgram = models.BooleanField(
+        default=None, null=True
+    )  # will this be helpful or just do it based on emails? @sarthak
+    referral_source = models.TextField(
         max_length=200, null=True, blank=True, verbose_name=_("Refferal")
     )
     isStaff = models.BooleanField(default=False, null=True)
     is_adult = models.BooleanField(default=None, null=True)
     terms_agreement = models.BooleanField(default=None, null=True)
-    initials = models.CharField(max_length=6, null=True) #in place of signature
-    mentor_application_video_link = models.URLField(max_length=200)
+    initials = models.CharField(max_length=6, null=True)  # in place of signature
+    mentor_application_video_link = models.URLField(
+        max_length=200, null=True, default=None
+    )
     application_submitted = models.BooleanField(default=None, null=True)
-    #only mentor adviors or above chan verfiy application submission
-    
+    # only mentor adviors or above chan verfiy application submission
+
     onetime_donated = models.BooleanField(default=None, null=True)
     recurring_donation = models.BooleanField(default=None, null=True)
-    
+
     # legal_review_ = models.BooleanField(default=None, null=True)
     # todo make choices for legal review about submitted, ongoing, complex, done, good - talk with brett about this
     legal_notes_bymentor = models.TextField(null=True, blank=True)
@@ -227,7 +237,7 @@ class Mentor(BaseUUIDModel):
     headmaster_notes = models.TextField(null=True, blank=True)
     metMentorAdvisor = models.BooleanField(default=None, null=True)
     mentorAdvisor_notes = models.BooleanField(default=None, null=True)
-    
+
     """
     showing implicit associations explicitly or recursively?
     Slot 
@@ -237,9 +247,9 @@ class Mentor(BaseUUIDModel):
     Note
     """
     additional_involvement = models.CharField(max_length=200, null=True, blank=True)
-    
-    #profile 
-    #todo sarthak figure this out with brett
+
+    # profile
+    # todo sarthak figure this out with brett
     """
     bio
     skills 
@@ -260,48 +270,53 @@ class Mentor(BaseUUIDModel):
     Family Notes:
     Other Notes:
     """
-    
-class Program_Director(BaseUUIDModel): 
-    
-    #? should it be ProgramDirector or Program_director or Program_Director (naming convention?)?
-    
+
+
+class ProgramDirector(BaseUUIDModel):
+
     user = models.OneToOneField(
         "users.HEADMASTER",
         on_delete=models.CASCADE,
     )
-        
+
+
 class HeadMaster(BaseUUIDModel):
     user = models.OneToOneField(
         "users.TEACHER",
         on_delete=models.CASCADE,
     )
-    
-     # ! need to improve based on: https://docs.google.com/spreadsheets/d/1ZCP85_1sKUPxYpXwjoMevV_zryJIfGYW_nMoG-M-56Y/edit#gid=734282936
+
+    # ! need to improve based on: https://docs.google.com/spreadsheets/d/1ZCP85_1sKUPxYpXwjoMevV_zryJIfGYW_nMoG-M-56Y/edit#gid=734282936
 
     # Further HeadMaster Information Here
-    
+
+
 class Teacher(BaseUUIDModel):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
     )
-    
-class Program_Manager(BaseUUIDModel): #? naming convention see program director above?
+
+
+class ProgramManager(BaseUUIDModel):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
     )
-    
+
+
 class Executive(BaseUUIDModel):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-    )    
-    
+    )
+
+
 class Parent(BaseUUIDModel):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-    )       
-    
-# ! add teacher, add mentor advisor, add parent, add executive, add program director JUST a headmaster with more privilages, add village_learner 
+    )
+
+
+# ! add teacher, add mentor advisor, add parent, add executive, add program director JUST a headmaster with more privilages, add village_learner
