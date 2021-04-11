@@ -105,6 +105,7 @@ class User(AbstractUser, BaseUUIDModel):
     verification_level = models.IntegerField(
         choices=VerificationLevelChoices, default=VerificationLevelEnum.LEVEL1.value
     )
+    initials = models.CharField(max_length=6, null=True)  # in place of signature
 
     # ? do users have default id??? or do we need to create such variable?
     """
@@ -261,7 +262,6 @@ class Mentor(BaseUUIDModel):
     isStaff = models.BooleanField(default=False, null=True)
     is_adult = models.BooleanField(default=None, null=True)
     terms_agreement = models.BooleanField(default=None, null=True)
-    initials = models.CharField(max_length=6, null=True)  # in place of signature
     mentor_application_video_link = models.URLField(
         max_length=200, null=True, default=None
     )
@@ -370,6 +370,7 @@ class Parent(BaseUUIDModel):
 
 
 # ! add teacher, add mentor advisor, add parent, add executive, add program director JUST a headmaster with more privilages, add village_learner
+
 
 class SubscriptionTypeEnum(enum.Enum):
     REGISTRATION = "REGISTRATION"
