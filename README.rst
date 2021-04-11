@@ -1,5 +1,14 @@
-Village Book Builders Backend
+Village Portal Backend
 =============================
+Village Portal is an open-sourced 'facility-based mentoring management platform'. Village Book Builders accelerates learners globally through virtual mentoring, learning libraries, and community-directed educational solutions. Village Portal helps schedule hundreds of virtual mentors with mentees worldwide; this connection catalyzes further impact. Other features are in development. Village Portal's mission is to enable mentors to teach courageous learners and communities how to fish. By increasing literacy, research, and educational skills, we hope to enable innovation economies in villages globally. Village Portal is an essential step towards a better future. Are you interested in the cause? Reach out to us at hr@villagebookbuilders.org. Learn more @ www.villagebookbuilders.org.
+
+
+Front-End of Village Portal @ https://github.com/VilllageBookBuilders/frontend-vbb-portal.git
+
+To Help, questions, comments, concerns, Email US at @ support@villagebookbuilders.org. 
+    Our DEV Taskboard: https://app.zenhub.com/workspaces/villagebookbuilders-5f662d2ba0525c27f3a90388/board. 
+        Join our weekly meetings: https://meet.google.com/btm-gwyo-uwr on Saturday at 9AM 
+
 
 The Backend code for Village Book Builders Portal
 
@@ -13,37 +22,54 @@ The Backend code for Village Book Builders Portal
 
 :License: MIT
 
+
 Intial Setup
 ------------
-
 The following steps should be completed in order to properly run the vbb-backend-portal on your local machine. 
 Some steps may vary based on your operating system and some installation steps may be skipped if the required packages are already installed.
-If you encounter issues in this process which can't be resolved with a 20 minute Google search and debug, please reach out via the back-end channel of the VBB Slack group.
+If you encounter issues in this process which can't be resolved with a 20 minute Google search and debug, please reach out via the back-end channel of the VBB Slack group or support@villagebookbuilders.org
+
 
 (first time global installations)
-1) Install python3+ [https://realpython.com/installing-python/]
-2) Install pip [https://pip.pypa.io/en/stable/installing/]
-3) Install postgresql [https://pip.pypa.io/en/stable/installing/]
-4) Install redis [https://redis.io/download]
-5) Create a database in postgresql titled `vbb` in postgresql [https://www.freecodecamp.org/news/how-to-get-started-with-postgresql-9d3bc1dd1b11/]
+    1) Install python3+ [https://realpython.com/installing-python/]
+
+    2) Install pip [https://pip.pypa.io/en/stable/installing/]
+
+    3) Install postgresql [https://www.postgresql.org/download/]
+    
+    4) Install redis [https://redis.io/download]
+
+    5) Create a database in postgresql titled `vbb` in postgresql [https://www.freecodecamp.org/news/how-to-get-started-with-postgresql-9d3bc1dd1b11/]
 
 (to run)
-6) Clone and cd into the backend-vbb-portal repository
-7) Run `virtualenv env`
-8) Run `source env/bin/activate` (path may differ depending on where /activate is installed)
-9) Run `pip install -r requirements/local.txt`
-10) Run `python manage.py runserver`
 
+    6) Clone and cd into the backend-vbb-portal repository
 
-Settings
---------
+    7) Run `virtualenv env`
+
+    8) Run `source env/bin/activate` (path may differ depending on where /activate is installed)
+
+    9) Run `pip install -r requirements/local.txt`
+
+    10) Run `python manage.py runserver`
+    
+    11) Run python manage.py migrate
+
+(to run windows)
+    1. ``py -m pip install --user virtualenv`` 2. ``py -m venv env`` 3. ``env\Scripts\activate.bat`` 4. ``pip install -r requirements.txt``  5. ``python manage.py runserver`` 6. ``python manage.py migrate``
+
+(Front-end run commands): 1. ``npm i`` 2. ``npm run build``
+
+*Settings*
 
 Moved to settings_.
 
 .. _settings: http://cookiecutter-django.readthedocs.io/en/latest/settings.html
 
-Basic Commands
---------------
+
+
+**Basic Commands**
+------------------
 
 Setting Up Your Users
 ^^^^^^^^^^^^^^^^^^^^^
