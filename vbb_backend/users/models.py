@@ -324,14 +324,45 @@ class MentorNoAuth(BaseUUIDModel):
         User,
         on_delete=models.CASCADE,
     )
-    # Further Mentor Information Here
-    charged = models.TextField(max_length=1024, null=True)
-    address = models.TextField()
-    desired_involvement = models.CharField(max_length=200, null=True, blank=True)
-    affiliation = models.CharField(
-        max_length=70, null=True, blank=True, verbose_name=_("Affiliation")
-    )
+    isInterested = models.BooleanField(default=None, null=True)
+    isIncomplete = models.BooleanField(default=None, null=True)
+    follow_up = models.BooleanField(default=None, null=True)
+    occupation = models.CharField(max_length=70, null=True, blank=True, verbose_name=_("Occupation"))
+    # if statement that only if college or high school student chapter is shown? should we do that?
+    vbb_chapter = models.CharField(max_length=40, null=True, blank=True, verbose_name=_("VBB Chapter"))
+    affiliation = models.CharField(max_length=70, null=True, blank=True, verbose_name=_("Affiliation"))
+    isinCoporateEmployeeProgram = models.BooleanField(
+        default=None, null=True
+    )  # will this be helpful or just do it based on emails? @sarthak
+    referral_source = models.TextField(max_length=200, null=True, blank=True, verbose_name=_("Refferal"))
+    isStaff = models.BooleanField(default=False, null=True)
     is_adult = models.BooleanField(default=None, null=True)
+    terms_agreement = models.BooleanField(default=None, null=True)
+    mentor_application_video_link = models.URLField(max_length=200, null=True, default=None)
+    application_submitted = models.BooleanField(default=None, null=True)
+    # only mentor adviors or above chan verfiy application submission
+
+    onetime_donated = models.BooleanField(default=None, null=True)
+    recurring_donation = models.BooleanField(default=None, null=True)
+
+    # legal_review_ = models.BooleanField(default=None, null=True)
+    # todo make choices for legal review about submitted, ongoing, complex, done, good - talk with brett about this
+    legal_notes_bymentor = models.TextField(null=True, blank=True)
+    legal_notes_byreviewer = models.TextField(null=True, blank=True)
+    vetted = models.BooleanField(default=None, null=True)
+    trainingScheduled = models.BooleanField(default=None, null=True)
+    attended_training = models.BooleanField(default=None, null=True)
+    trainingNotes = models.TextField(null=True, blank=True)
+    completed_trainingModules = models.BooleanField(default=None, null=True)
+    nextLeadMentor_meeting_date = models.DateTimeField(null=True, blank=True)
+    nextLeadMentor_meetingInfo = models.TextField(null=True, blank=True)
+    leadmentor_notes = models.TextField(null=True, blank=True)
+    metHeadmaster = models.BooleanField(default=None, null=True)
+    headmaster_notes = models.TextField(null=True, blank=True)
+    metMentorAdvisor = models.BooleanField(default=None, null=True)
+    mentorAdvisor_notes = models.BooleanField(default=None, null=True)
+    additional_involvement = models.CharField(max_length=200, null=True, blank=True)
+
 
 
 class ProgramManager(BaseUUIDModel):
