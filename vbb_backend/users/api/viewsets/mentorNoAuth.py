@@ -26,5 +26,5 @@ class MentorNoAuthViewSet(ModelViewSet):
         if user.is_superuser:
             pass
         else:
-            queryset = self.queryset.filter(user=user)
+            queryset = self.queryset.filter(user=user.id)
         return queryset
