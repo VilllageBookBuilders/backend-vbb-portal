@@ -30,7 +30,8 @@ router.register("newsletter", NewsletterSubscriberViewSet)
 
 router.register("mentor", MentorViewSet)
 
-router.register("mentorNoAuth", MentorNoAuthViewSet)
+if not settings.IS_PRODUCTION:
+    router.register("mentorNoAuth", MentorNoAuthViewSet)
 
 router.register("session", SessionViewSet)
 
