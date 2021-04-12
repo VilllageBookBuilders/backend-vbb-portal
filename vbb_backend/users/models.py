@@ -330,7 +330,7 @@ class ProgramDirector(BaseUUIDModel):
     )
 
 
-class HeadMaster(BaseUUIDModel):
+class Headmaster(BaseUUIDModel):
     user = models.OneToOneField(
         "users.TEACHER",
         on_delete=models.CASCADE,
