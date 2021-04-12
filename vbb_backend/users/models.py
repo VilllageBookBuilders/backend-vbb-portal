@@ -212,6 +212,20 @@ class Mentor(BaseUUIDModel):
     is_adult = models.BooleanField(default=None, null=True)
 
 
+class MentorNoAuth(BaseUUIDModel):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+    )
+    # Further Mentor Information Here
+    charged = models.TextField(max_length=1024, null=True)
+    address = models.TextField()
+    desired_involvement = models.CharField(max_length=200, null=True, blank=True)
+    affiliation = models.CharField(
+        max_length=70, null=True, blank=True, verbose_name=_("Affiliation")
+    )
+    is_adult = models.BooleanField(default=None, null=True)
+
 class HeadMaster(BaseUUIDModel):
     user = models.OneToOneField(
         User,
