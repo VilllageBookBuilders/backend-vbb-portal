@@ -47,31 +47,17 @@ class Program(BaseUUIDModel):
     # todo add field type = models.ForeignKey(ContentType) types include excellent, good, poor, gov/low-fee, special status
     latitude = models.DecimalField(max_digits=8, decimal_places=3)
     longitude = models.DecimalField(max_digits=8, decimal_places=3)
-    program_director = models.ForeignKey(
-        "users.ProgramDirector", on_delete=models.SET_NULL, null=True
-    )
-    headmasters = models.ManyToManyField(
-        "users.HeadMaster", through="HeadmastersProgramAssociation"
-    )
-    teachers = models.ManyToManyField(
-        "users.Teacher", through="TeachersProgramAssociation"
-    )
-    managers = models.ManyToManyField(
-        "users.ProgramManager", through="ManagersProgramAssociation"
-    )
+    program_director = models.ForeignKey("users.ProgramDirector", on_delete=models.SET_NULL, null=True)
+    headmasters = models.ManyToManyField("users.Headmaster", through="HeadmastersProgramAssociation")
+    teachers = models.ManyToManyField("users.Teacher", through="TeachersProgramAssociation")
+    managers = models.ManyToManyField("users.ProgramManager", through="ManagersProgramAssociation")
     # todo add access control for 54-56
-    program_inception_date = models.DateTimeField(
-        null=True, blank=True
-    )  # offical start date
+    program_inception_date = models.DateTimeField(null=True, blank=True)  # offical start date
     program_renewal_date = models.DateTimeField(
         null=True, blank=True
     )  # yearly program renual before trips should be made
-    required_languages = models.CharField(
-        max_length=254, choices=LanguageChoices, default=None, null=True
-    )
-    secondary_languages = models.CharField(
-        max_length=254, choices=LanguageChoices, default=None, null=True
-    )
+    required_languages = models.CharField(max_length=254, choices=LanguageChoices, default=None, null=True)
+    secondary_languages = models.CharField(max_length=254, choices=LanguageChoices, default=None, null=True)
 
     # calender key for scheduling
     googe_calendar_id = models.CharField(max_length=254, null=True)
@@ -85,18 +71,10 @@ class Program(BaseUUIDModel):
     parents_group = models.CharField(max_length=254, null=True, blank=True)
 
     # program specific resources
-    notion_url = models.URLField(
-        max_length=500, null=True, blank=True, help_text="url link"
-    )
-    googleDrive_url = models.URLField(
-        max_length=500, null=True, blank=True, help_text="url link"
-    )
-    googleClassroom_url = models.URLField(
-        max_length=500, null=True, blank=True, help_text="url link"
-    )
-    workplace_resources = models.URLField(
-        max_length=500, null=True, blank=True, help_text="url link"
-    )
+    notion_url = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
+    googleDrive_url = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
+    googleClassroom_url = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
+    workplace_resources = models.URLField(max_length=500, null=True, blank=True, help_text="url link")
     program_googlePhotos = models.URLField(
         max_length=500,
         null=True,
@@ -157,13 +135,9 @@ class HeadmastersProgramAssociation(BaseUUIDModel):
         null=True,
         related_name="program_headmaster",
     )
-    program = models.ForeignKey(
-        Program, on_delete=models.SET_NULL, null=True, related_name="headmaster_program"
-    )
+    program = models.ForeignKey(Program, on_delete=models.SET_NULL, null=True, related_name="headmaster_program")
     priority = models.IntegerField(default=0)  # 0 is the highest priority
-    is_confirmed = models.BooleanField(
-        default=False
-    )  # This is only editable by the program director or above
+    is_confirmed = models.BooleanField(default=False)  # This is only editable by the program director or above
 
 
 class TeachersProgramAssociation(BaseUUIDModel):
@@ -177,13 +151,9 @@ class TeachersProgramAssociation(BaseUUIDModel):
         null=True,
         related_name="program_teacher",
     )
-    program = models.ForeignKey(
-        Program, on_delete=models.SET_NULL, null=True, related_name="teacher_program"
-    )
+    program = models.ForeignKey(Program, on_delete=models.SET_NULL, null=True, related_name="teacher_program")
     priority = models.IntegerField(default=0)  # 0 is the highest priority
-    is_confirmed = models.BooleanField(
-        default=False
-    )  # This is only editable by the program director or above
+    is_confirmed = models.BooleanField(default=False)  # This is only editable by the program director or above
 
 
 class ManagersProgramAssociation(BaseUUIDModel):
@@ -197,13 +167,9 @@ class ManagersProgramAssociation(BaseUUIDModel):
         null=True,
         related_name="program_manager",
     )
-    program = models.ForeignKey(
-        Program, on_delete=models.SET_NULL, null=True, related_name="manager_program"
-    )
+    program = models.ForeignKey(Program, on_delete=models.SET_NULL, null=True, related_name="manager_program")
     priority = models.IntegerField(default=0)  # 0 is the highest priority
-    is_confirmed = models.BooleanField(
-        default=False
-    )  # This is only editable by the program director or above
+    is_confirmed = models.BooleanField(default=False)  # This is only editable by the program director or above
 
 
 class School(BaseUUIDModel):  # LATER keep track of student attendance, and grades
@@ -227,9 +193,7 @@ class School(BaseUUIDModel):  # LATER keep track of student attendance, and grad
     program = models.ForeignKey(Program, on_delete=models.SET_NULL, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    school_bio = models.TextField(
-        help_text="mission, values, vision, pitch", null=True, blank=True
-    )
+    school_bio = models.TextField(help_text="mission, values, vision, pitch", null=True, blank=True)
     """
     we need to figure out if we want static school pages or populating schoo pages? for example, day in the life of a student at a school, we need to figure this out @sarthak
     then begs the questions do we even need this many fields in the backend like most of these could just be static on the front-end what is our data science plan
@@ -242,9 +206,7 @@ class School(BaseUUIDModel):  # LATER keep track of student attendance, and grad
     vbb_rating = models.TextField(null=True, blank=True)
     # todo add field type = models.ForeignKey(ContentType) types include excellent, good, poor, gov/low-fee, special status
     # figure out how school data & reporting is should be stored in portal or in sheets
-    monthly_fundingDollars = models.DecimalField(
-        max_digits=10, decimal_places=6, null=True, blank=True
-    )
+    monthly_fundingDollars = models.DecimalField(max_digits=10, decimal_places=6, null=True, blank=True)
     school_infrastructureNotes = models.TextField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
 
@@ -256,9 +218,7 @@ class School(BaseUUIDModel):  # LATER keep track of student attendance, and grad
 
     @staticmethod
     def has_create_permission(request):
-        program = Program.objects.get(
-            external_id=request.parser_context["kwargs"]["program_external_id"]
-        )
+        program = Program.objects.get(external_id=request.parser_context["kwargs"]["program_external_id"])
         return request.user.is_superuser or request.user == program.program_director
 
     @staticmethod
@@ -270,9 +230,7 @@ class School(BaseUUIDModel):  # LATER keep track of student attendance, and grad
         return True  # User Queryset Filtering Here
 
     def has_object_write_permission(self, request):
-        return (
-            request.user.is_superuser or request.user == self.program.program_director
-        )
+        return request.user.is_superuser or request.user == self.program.program_director
 
     def has_object_update_permission(self, request):
         return self.has_object_write_permission(request)
@@ -300,12 +258,8 @@ class Classroom(BaseUUIDModel):  # DEPRECATED
 
     @staticmethod
     def has_create_permission(request):
-        school = School.objects.get(
-            external_id=request.parser_context["kwargs"]["school_external_id"]
-        )
-        return (
-            request.user.is_superuser or request.user == school.program.program_director
-        )
+        school = School.objects.get(external_id=request.parser_context["kwargs"]["school_external_id"])
+        return request.user.is_superuser or request.user == school.program.program_director
 
     @staticmethod
     def has_write_permission(request):
@@ -316,10 +270,7 @@ class Classroom(BaseUUIDModel):  # DEPRECATED
         return True  # User Queryset Filtering Here
 
     def has_object_write_permission(self, request):
-        return (
-            request.user.is_superuser
-            or request.user == self.school.program.program_director
-        )
+        return request.user.is_superuser or request.user == self.school.program.program_director
 
     def has_object_update_permission(self, request):
         return self.has_object_write_permission(request)
@@ -410,15 +361,11 @@ class Computer(BaseUUIDModel):
     """
 
     def __str__(self):
-        return (
-            f"{str(self.program)} {str(self.computer_number)} + ({self.computer_email})"
-        )
+        return f"{str(self.program)} {str(self.computer_number)} + ({self.computer_email})"
 
     @staticmethod
     def has_create_permission(request):
-        program = Program.objects.get(
-            external_id=request.parser_context["kwargs"]["program_external_id"]
-        )
+        program = Program.objects.get(external_id=request.parser_context["kwargs"]["program_external_id"])
         return request.user.is_superuser or request.user == program.program_director
 
     @staticmethod
@@ -430,9 +377,7 @@ class Computer(BaseUUIDModel):
         return True  # User Queryset Filtering Here
 
     def has_object_write_permission(self, request):
-        return (
-            request.user.is_superuser or request.user == self.program.program_director
-        )
+        return request.user.is_superuser or request.user == self.program.program_director
 
     def has_object_update_permission(self, request):
         return self.has_object_write_permission(request)
@@ -456,9 +401,7 @@ class Slot(BaseUUIDModel):
     """
 
     # Default Min date not used as this can cause issues in some databases and systems
-    DEAFULT_INIT_DATE = datetime.fromisoformat(
-        "2000-01-03 00:00:00"
-    )  # First Monday of the year 2000
+    DEAFULT_INIT_DATE = datetime.fromisoformat("2000-01-03 00:00:00")  # First Monday of the year 2000
     # DO NOT CHANGE THE DEFAULT INIT DATE | USED FOR EASE OF USE
     slot_number = models.IntegerField(null=True, blank=True)
     # ? should we have a way to ID the slots across computers or programs? like an index to help admins find slots?
@@ -470,20 +413,14 @@ class Slot(BaseUUIDModel):
         null=True,
     )
     language = models.CharField(max_length=254, choices=LanguageChoices)
-    schedule_start = models.DateTimeField(
-        null=False, blank=False
-    )  # All Date Times in UTC
-    schedule_end = models.DateTimeField(
-        null=False, blank=False
-    )  # All Date Times are in UTC
+    schedule_start = models.DateTimeField(null=False, blank=False)  # All Date Times in UTC
+    schedule_end = models.DateTimeField(null=False, blank=False)  # All Date Times are in UTC
     start_date = models.DateField(auto_now=True)  # When the slot becomes active
     end_date = models.DateField(null=True, blank=True)  # if and when the slot ends
     event_id = models.CharField(max_length=60, null=True, blank=True)
     meeting_link = models.CharField(max_length=60, null=True, blank=True)
     max_students = models.IntegerField(default=1)
-    assigned_students = models.IntegerField(
-        default=0
-    )  # Storing to avoid recalculation each time
+    assigned_students = models.IntegerField(default=0)  # Storing to avoid recalculation each time
     is_mentor_assigned = models.BooleanField(default=False)
     is_student_assigned = models.BooleanField(default=False)
 
@@ -521,13 +458,8 @@ class Slot(BaseUUIDModel):
 
     @staticmethod
     def has_create_permission(request):
-        computer = Computer.objects.get(
-            external_id=request.parser_context["kwargs"]["computer_external_id"]
-        )
-        return (
-            request.user.is_superuser
-            or request.user == computer.program.program_director
-        )
+        computer = Computer.objects.get(external_id=request.parser_context["kwargs"]["computer_external_id"])
+        return request.user.is_superuser or request.user == computer.program.program_director
 
     @staticmethod
     def has_write_permission(request):
@@ -538,10 +470,7 @@ class Slot(BaseUUIDModel):
         return True  # User Queryset Filtering Here
 
     def has_object_write_permission(self, request):
-        return (
-            request.user.is_superuser
-            or request.user == self.computer.program.program_director
-        )
+        return request.user.is_superuser or request.user == self.computer.program.program_director
 
     def has_object_update_permission(self, request):
         return self.has_object_write_permission(request)
@@ -561,16 +490,12 @@ class StudentSlotAssociation(BaseUUIDModel):
         null=True,
         related_name="student_slot",
     )
-    slot = models.ForeignKey(
-        Slot, on_delete=models.SET_NULL, null=True, related_name="slot_student"
-    )
+    slot = models.ForeignKey(Slot, on_delete=models.SET_NULL, null=True, related_name="slot_student")
     priority = models.IntegerField(default=0)  # 0 is the highest priority
 
     @staticmethod
     def has_create_permission(request):
-        program = Program.objects.get(
-            external_id=request.parser_context["kwargs"]["program_external_id"]
-        )
+        program = Program.objects.get(external_id=request.parser_context["kwargs"]["program_external_id"])
         return request.user.is_superuser or request.user == program.program_director
 
     @staticmethod
@@ -582,10 +507,7 @@ class StudentSlotAssociation(BaseUUIDModel):
         return True  # User Queryset Filtering Here
 
     def has_object_write_permission(self, request):
-        return (
-            request.user.is_superuser
-            or request.user == self.slot.computer.program.program_director
-        )
+        return request.user.is_superuser or request.user == self.slot.computer.program.program_director
 
     def has_object_update_permission(self, request):
         return self.has_object_write_permission(request)
@@ -599,13 +521,7 @@ class MentorSlotAssociation(BaseUUIDModel):
     This connects the student user object with a Slot Object
     """
 
-    mentor = models.ForeignKey(
-        "users.Mentor", on_delete=models.SET_NULL, null=True, related_name="mentor_slot"
-    )
-    slot = models.ForeignKey(
-        Slot, on_delete=models.SET_NULL, null=True, related_name="slot_mentor"
-    )
+    mentor = models.ForeignKey("users.Mentor", on_delete=models.SET_NULL, null=True, related_name="mentor_slot")
+    slot = models.ForeignKey(Slot, on_delete=models.SET_NULL, null=True, related_name="slot_mentor")
     priority = models.IntegerField(default=0)  # 0 is the highest priority
-    is_confirmed = models.BooleanField(
-        default=False
-    )  # This is only editable by the program director or above
+    is_confirmed = models.BooleanField(default=False)  # This is only editable by the program director or above

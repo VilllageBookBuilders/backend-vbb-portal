@@ -98,9 +98,7 @@ class User(AbstractUser, BaseUUIDModel):
 
     email = models.EmailField(_("email address"), unique=True)
 
-    user_type = models.IntegerField(
-        choices=UserTypeChoices, default=UserTypeEnum.MENTOR.value
-    )
+    user_type = models.IntegerField(choices=UserTypeChoices, default=UserTypeEnum.MENTOR.value)
 
     verification_level = models.IntegerField(
         choices=VerificationLevelChoices, default=VerificationLevelEnum.LEVEL1.value
@@ -119,9 +117,7 @@ class User(AbstractUser, BaseUUIDModel):
     )  # when does their membership end and need to be vetted again
 
     date_of_birth = models.DateField(blank=True, null=True)
-    gender = models.CharField(
-        max_length=254, choices=GenderChoices, default=None, null=True
-    )
+    gender = models.CharField(max_length=254, choices=GenderChoices, default=None, null=True)
     time_zone = models.CharField(max_length=32, choices=TIMEZONES)
     address = models.TextField(null=True, blank=True)
     country = models.CharField(max_length=70, null=True, blank=True)
@@ -130,16 +126,10 @@ class User(AbstractUser, BaseUUIDModel):
 
     # figure out how do nickname ..> deidentification? like choose an avatar like a pokemon or something? sarthak talk with brett as he really wants this as investors/donors want deintentification
 
-    primary_language = models.CharField(
-        max_length=254, choices=LanguageChoices, default=None, null=True
-    )
-    secondary_language = models.CharField(
-        max_length=254, choices=LanguageChoices, default=None, null=True
-    )
+    primary_language = models.CharField(max_length=254, choices=LanguageChoices, default=None, null=True)
+    secondary_language = models.CharField(max_length=254, choices=LanguageChoices, default=None, null=True)
 
-    personal_email = models.EmailField(
-        null=True, unique=True, verbose_name=_("Personal Email")
-    )
+    personal_email = models.EmailField(null=True, unique=True, verbose_name=_("Personal Email"))
     phone = PhoneNumberField(blank=True, verbose_name=_("Phone Number"))
     avaibility_times = models.TextField(null=True, blank=True)
     user_bio = models.TextField(null=True, blank=True)
@@ -159,9 +149,7 @@ class User(AbstractUser, BaseUUIDModel):
 
 # dynamic questions, surveying for questions that don't need to be embedded in a model, for later usage
 class UserQuestionareQuestions(QuestionareQuestions):
-    user_type = models.IntegerField(
-        choices=UserTypeChoices, default=None, null=True, blank=True
-    )
+    user_type = models.IntegerField(choices=UserTypeChoices, default=None, null=True, blank=True)
     # ? why are we doing this, sorry Just not understanding the benefit? questions vs answers? what how do we build low-code formso or just forms? what should the priority be @sarthak
 
 
@@ -200,12 +188,8 @@ class Student(BaseUUIDModel):
 
     @staticmethod
     def has_create_permission(request):
-        school = School.objects.get(
-            external_id=request.parser_context["kwargs"]["school_external_id"]
-        )
-        return (
-            request.user.is_superuser or request.user == school.program.program_director
-        )
+        school = School.objects.get(external_id=request.parser_context["kwargs"]["school_external_id"])
+        return request.user.is_superuser or request.user == school.program.program_director
 
     @staticmethod
     def has_write_permission(request):
@@ -216,10 +200,7 @@ class Student(BaseUUIDModel):
         return True  # User Queryset Filtering Here
 
     def has_object_write_permission(self, request):
-        return (
-            request.user.is_superuser
-            or request.user == self.school.program.program_director
-        )
+        return request.user.is_superuser or request.user == self.school.program.program_director
 
     def has_object_update_permission(self, request):
         return self.has_object_write_permission(request)
@@ -243,28 +224,18 @@ class Mentor(BaseUUIDModel):
     follow_up = models.BooleanField(default=None, null=True)
     # follow_up_dates =
     # ? i don't understand  how do to arrays or lists
-    occupation = models.CharField(
-        max_length=70, null=True, blank=True, verbose_name=_("Occupation")
-    )
+    occupation = models.CharField(max_length=70, null=True, blank=True, verbose_name=_("Occupation"))
     # if statement that only if college or high school student chapter is shown? should we do that?
-    vbb_chapter = models.CharField(
-        max_length=40, null=True, blank=True, verbose_name=_("VBB Chapter")
-    )
-    affiliation = models.CharField(
-        max_length=70, null=True, blank=True, verbose_name=_("Affiliation")
-    )
+    vbb_chapter = models.CharField(max_length=40, null=True, blank=True, verbose_name=_("VBB Chapter"))
+    affiliation = models.CharField(max_length=70, null=True, blank=True, verbose_name=_("Affiliation"))
     isinCoporateEmployeeProgram = models.BooleanField(
         default=None, null=True
     )  # will this be helpful or just do it based on emails? @sarthak
-    referral_source = models.TextField(
-        max_length=200, null=True, blank=True, verbose_name=_("Refferal")
-    )
+    referral_source = models.TextField(max_length=200, null=True, blank=True, verbose_name=_("Refferal"))
     isStaff = models.BooleanField(default=False, null=True)
     is_adult = models.BooleanField(default=None, null=True)
     terms_agreement = models.BooleanField(default=None, null=True)
-    mentor_application_video_link = models.URLField(
-        max_length=200, null=True, default=None
-    )
+    mentor_application_video_link = models.URLField(max_length=200, null=True, default=None)
     application_submitted = models.BooleanField(default=None, null=True)
     # only mentor adviors or above chan verfiy application submission
 
@@ -338,7 +309,7 @@ class Headmaster(BaseUUIDModel):
 
     # ! need to improve based on: https://docs.google.com/spreadsheets/d/1ZCP85_1sKUPxYpXwjoMevV_zryJIfGYW_nMoG-M-56Y/edit#gid=734282936
 
-    # Further HeadMaster Information Here
+    # Further Headmaster Information Here
 
 
 class Teacher(BaseUUIDModel):
@@ -388,9 +359,7 @@ class NewsletterSubscriber(BaseUUIDModel):
     first_name = models.CharField(max_length=254, null=True, blank=True)
     last_name = models.CharField(max_length=254, null=True, blank=True)
     phone_number = PhoneNumberField(blank=True, verbose_name=_("Phone Number"))
-    email = models.EmailField(
-        null=False, blank=False, unique=True, verbose_name=_("Email")
-    )
+    email = models.EmailField(null=False, blank=False, unique=True, verbose_name=_("Email"))
     subscriber_type = models.CharField(
         max_length=254,
         choices=SubscriptionTypeChoices,

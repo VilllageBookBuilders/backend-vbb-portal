@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from vbb_backend.users.models import HeadMaster, Mentor, Student, User
+from vbb_backend.users.models import Headmaster, Mentor, Student, User
 
 
 class CustomUserAdmin(UserAdmin):
@@ -50,4 +50,4 @@ admin.site.register(User, CustomUserAdmin)
 
 admin.site.register(Mentor)
 admin.site.register(Student)
-admin.site.register(HeadMaster)
+admin.site.register(Headmaster)
