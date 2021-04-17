@@ -45,7 +45,7 @@ class ProgramManagerSerializer(serializers.ModelSerializer):
                 instance = user.save()
                 attrs["user"] = instance
             else:
-                user = ProgramDirectorUserSerializer(data=user)
+                user = ProgramManagerUserSerializer(data=user)
                 user.is_valid(raise_exception=True)
                 instance = user.save()
                 attrs["user"] = instance
