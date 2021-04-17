@@ -24,6 +24,7 @@ from vbb_backend.users.api.viewsets.program_director import ProgramDirectorViewS
 from vbb_backend.users.api.viewsets.program_manager import ProgramManagerViewSet
 from vbb_backend.users.api.viewsets.headmaster import HeadmasterViewSet
 from vbb_backend.users.api.viewsets.parent import ParentViewSet
+from vbb_backend.users.api.viewsets.executive import ExecutiveViewSet
 from vbb_backend.users.api.viewsets.mentorNoAuth import MentorNoAuthViewSet
 
 if settings.DEBUG:
@@ -39,6 +40,7 @@ router.register("programDirector", ProgramDirectorViewSet)
 router.register("programManager", ProgramManagerViewSet)
 router.register("headmaster", HeadmasterViewSet)
 router.register("parent", ParentViewSet)
+router.register("executive", ExecutiveViewSet)
 
 if not settings.IS_PRODUCTION:
     router.register("mentorNoAuth", MentorNoAuthViewSet)
