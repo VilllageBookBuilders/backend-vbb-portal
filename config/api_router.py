@@ -20,6 +20,11 @@ from vbb_backend.users.api.viewsets.newsletter import NewsletterSubscriberViewSe
 from vbb_backend.users.api.viewsets.student import StudentViewSet
 from vbb_backend.users.api.viewsets.mentor import MentorViewSet
 from vbb_backend.users.api.viewsets.mentorNoAuth import MentorNoAuthViewSet
+from vbb_backend.users.api.viewsets.headmaster import HeadmasterViewSet
+from vbb_backend.users.api.viewsets.teacher import TeacherViewSet
+from vbb_backend.users.api.viewsets.programdirector import ProgramDirectorViewSet
+from vbb_backend.users.api.viewsets.programmanager import ProgramManagerViewSet
+
 
 if settings.DEBUG:
     router = DefaultRouter()
@@ -52,6 +57,13 @@ router.register("program", ProgramViewSet)
 
 program_nested_router = NestedSimpleRouter(router, r"program", lookup="program")
 
+program_nested_router.register(r'headmaster', HeadmasterViewSet)
+
+program_nested_router.register(r'teacher', TeacherViewSet)
+
+program_nested_router.register(r'program-director', ProgramDirectorViewSet)
+
+program_nested_router.register(r'program-manager', ProgramManagerViewSet)
 
 program_nested_router.register(r"school", SchoolViewSet)
 
