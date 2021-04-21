@@ -69,11 +69,11 @@ If you encounter issues in this process which can't be resolved with a 20 minute
     6) ``python manage.py migrate``
 
 (To use your local database)
-You will need to point the application to your local database. With a fresh install of postgreSQL the default username is postgres.
+You will need to point the application to your local database.
 
-1) navigate to config/settings/base.py
+1) Navigate to config/settings/base.py
 
-2) set ``DATABASES = {"default": env.db("DATABASE_URL", default="postgres://{USERNAME}:{PASSWORD}@localhost:{PORT}//vbb")}``
+2) Set ``DATABASES = {"default": env.db("DATABASE_URL", default="postgres://{USERNAME}:{PASSWORD}@localhost:{PORT}//vbb")}``
 
 3) Add this file to your .gitignore 
 
