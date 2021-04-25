@@ -9,7 +9,7 @@ from vbb_backend.program.models import Program, TeachersProgramAssociation
 from vbb_backend.users.models import UserTypeEnum
 
 
-class TeachersProgramViewSet(ModelViewSet):
+class TeacherProgramViewSet(ModelViewSet):
     queryset = TeachersProgramAssociation.objects.all()
     permission_classes = [IsAuthenticated, DRYPermissions]
     serializer_class = TeacherProgramSerializer
