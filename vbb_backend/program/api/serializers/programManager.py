@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from vbb_backend.program.models import ManagersProgramAssociation
-from vbb_backend.users.models import Manager
+from vbb_backend.users.models import ProgramManager
 from vbb_backend.users.api.serializers.user import UserBareMinimumSerializer
 from rest_framework.exceptions import ValidationError
 
@@ -11,7 +11,7 @@ class ManagerProgramBaseSerializer(serializers.ModelSerializer):
     profile = UserBareMinimumSerializer(source="user")
 
     class Meta:
-        model = Manager
+        model = ProgramManager
         exclude = ("deleted", "external_id")
 
 
@@ -37,7 +37,7 @@ class ManagerProgramSerializer(ManagerProgramListSerializer):
 
         if "manager" in attrs:
             manager = attrs.pop("manager")
-            manager_obj = Manager.objects.filter(external_id=Manager).first()
+            manager_obj = ProgramManager.objects.filter(external_id=Manager).first()
             if not manager_obj:
                 raise ValidationError(
                     {
@@ -61,7 +61,7 @@ class ManagerProgramBookingSerializer(ManagerProgramListSerializer):
 
         if "manager" in attrs:
             manager = attrs.pop("manager")
-            manager_obj = Manager.objects.filter(external_id=manager).first()
+            manager_obj = ProgramManager.objects.filter(external_id=manager).first()
             if not manager_obj:
                 raise ValidationError(
                     {
