@@ -26,10 +26,9 @@ from vbb_backend.users.api.viewsets.headmaster import HeadmasterViewSet
 from vbb_backend.users.api.viewsets.parent import ParentViewSet
 from vbb_backend.users.api.viewsets.executive import ExecutiveViewSet
 from vbb_backend.users.api.viewsets.mentorNoAuth import MentorNoAuthViewSet
-from vbb_backend.users.api.viewsets.headmaster import HeadmasterViewSet
-from vbb_backend.users.api.viewsets.teacher import TeacherViewSet
-from vbb_backend.users.api.viewsets.programdirector import ProgramDirectorViewSet
-from vbb_backend.users.api.viewsets.programmanager import ProgramManagerViewSet
+from vbb_backend.program.api.viewsets.programTeacher import TeacherProgramViewSet
+from vbb_backend.program.api.viewsets.programManager import ManagerProgramViewSet
+from vbb_backend.program.api.viewsets.programHeadmaster import HeadmasterProgramViewSet
 
 
 if settings.DEBUG:
@@ -69,13 +68,11 @@ router.register("program", ProgramViewSet)
 
 program_nested_router = NestedSimpleRouter(router, r"program", lookup="program")
 
-program_nested_router.register(r'headmaster', HeadmasterViewSet)
+program_nested_router.register(r'headmaster', HeadmasterProgramViewSet)
 
-program_nested_router.register(r'teacher', TeacherViewSet)
+program_nested_router.register(r'teacher', TeacherProgramViewSet)
 
-program_nested_router.register(r'program-director', ProgramDirectorViewSet)
-
-program_nested_router.register(r'program-manager', ProgramManagerViewSet)
+program_nested_router.register(r'programManager', ManagerProgramViewSet)
 
 program_nested_router.register(r"school", SchoolViewSet)
 
