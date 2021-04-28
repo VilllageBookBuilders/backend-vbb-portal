@@ -75,9 +75,7 @@ You will need to point the application to your local database.
 
 2) Set ``DATABASES = {"default": env.db("DATABASE_URL", default="postgres://{USERNAME}:{PASSWORD}@localhost:{PORT}//vbb")}``
 
-3) Add this file to your .gitignore 
-
-4) ``git update-index --skip-worktree base.py``
+3) ``git update-index --skip-worktree base.py``
 
 (Front-end run commands): 1. ``npm i`` 2. ``npm run build``
 
