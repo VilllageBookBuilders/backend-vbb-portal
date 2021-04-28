@@ -12,7 +12,7 @@ from vbb_backend.users.models import UserTypeEnum
 
 class MentorViewSet(ModelViewSet):
     queryset = Mentor.objects.all()
-    permission_classes = [IsAuthenticated, DRYPermissions]
+    permission_classes = [IsAuthenticated,]
     serializer_class = MentorSerializer
     lookup_field = "external_id"
 
