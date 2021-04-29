@@ -56,7 +56,26 @@ If you encounter issues in this process which can't be resolved with a 20 minute
     11) Run python manage.py migrate
 
 (to run windows)
-    1. ``py -m pip install --user virtualenv`` 2. ``py -m venv env`` 3. ``env\Scripts\activate.bat`` 4. ``pip install -r requirements.txt``  5. ``python manage.py runserver`` 6. ``python manage.py migrate``
+    1) ``py -m pip install --user virtualenv`` 
+    
+    2) ``py -m venv env`` 
+    
+    3) ``env\Scripts\activate.bat`` or in powershell ``env\Scripts\activate.ps1``
+    
+    4) ``pip install -r requirements.txt``  
+    
+    5) ``python manage.py runserver`` 
+    
+    6) ``python manage.py migrate``
+
+(To use your local database)
+You will need to point the application to your local database.
+
+1) Navigate to config/settings/base.py
+
+2) Set ``DATABASES = {"default": env.db("DATABASE_URL", default="postgres://{USERNAME}:{PASSWORD}@localhost:{PORT}//vbb")}``
+
+3) ``git update-index --skip-worktree base.py``
 
 (Front-end run commands): 1. ``npm i`` 2. ``npm run build``
 
