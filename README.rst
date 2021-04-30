@@ -1,4 +1,4 @@
-[![Maintainability](https://api.codeclimate.com/v1/badges/a0dd8a4560d9fa9615f5/maintainability)](https://codeclimate.com/github/VilllageBookBuilders/backend-vbb-portal/maintainability)
+|Codecov|
 
 Village Portal Backend
 =============================
