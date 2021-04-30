@@ -1,5 +1,21 @@
 .. image:: https://sonarcloud.io/api/project_badges/measure?project=VilllageBookBuilders_backend-vbb-portal&metric=alert_status
-    :alt: Code scanning
+    :alt: Quality Gate
+.. image:: https://api.codeclimate.com/v1/badges/b22c4cad8859bc27c379/maintainability
+    :target: https://codeclimate.com/github/coronasafe/care/maintainability
+    :alt: Code scanning  
+\
+
+.. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
+     :target: https://github.com/pydanny/cookiecutter-django/
+     :alt: Built with Cookiecutter Django  
+\
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+     :target: https://github.com/ambv/black
+     :alt: Black code style
+     
+:License: MIT
+
 
 Village Portal Backend
 =============================
@@ -15,15 +31,6 @@ To Help, questions, comments, concerns, Email US at @ support@villagebookbuilder
 
 The Backend code for Village Book Builders Portal
 
-.. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
-     :target: https://github.com/pydanny/cookiecutter-django/
-     :alt: Built with Cookiecutter Django
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-     :target: https://github.com/ambv/black
-     :alt: Black code style
-
-
-:License: MIT
 
 
 Intial Setup
