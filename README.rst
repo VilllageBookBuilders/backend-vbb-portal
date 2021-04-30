@@ -1,4 +1,5 @@
-|Codecov|
+.. image:: https://sonarcloud.io/api/project_badges/measure?project=VilllageBookBuilders_backend-vbb-portal&metric=alert_status
+    :alt: Code scanning
 
 Village Portal Backend
 =============================
