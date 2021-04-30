@@ -21,7 +21,7 @@ class ExecutiveViewSet(ModelViewSet):
         return super().get_permissions()
 
     def get_queryset(self):
-        queryset = self.queryset.filter(user__user_type=UserTypeEnum.PARENT.value)
+        queryset = self.queryset.filter(user__user_type=UserTypeEnum.EXECUTIVE.value)
         user = self.request.user
         if user.is_superuser:
             pass
