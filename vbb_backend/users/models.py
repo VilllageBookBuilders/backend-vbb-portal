@@ -295,14 +295,14 @@ class Mentor(BaseUUIDModel):
 
 class ProgramDirector(BaseUUIDModel):
     user = models.OneToOneField(
-        User, # "users.HEADMASTER",
+        User,
         on_delete=models.CASCADE,
     )
 
 
 class Headmaster(BaseUUIDModel):
     user = models.OneToOneField(
-        User, # "users.TEACHER",
+        User,
         on_delete=models.CASCADE,
     )
 
