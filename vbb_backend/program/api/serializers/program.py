@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from vbb_backend.program.models import Program
 from vbb_backend.users.api.serializers.user import UserBareMinimumSerializer
-from vbb_backend.users.models import User
+from vbb_backend.users.models import User, ProgramDirector
 
 from rest_framework.exceptions import ValidationError
 
@@ -29,16 +29,16 @@ class ProgramSerializer(serializers.ModelSerializer):
 
         if "program_director" in attrs:
             program_director_external_id = attrs.pop("program_director")
-            product_director_obj = User.objects.filter(
+            program_director_obj = ProgramDirector.objects.filter(
                 external_id=program_director_external_id
             ).first()
-            if not product_director_obj:
+            if not program_director_obj:
                 raise ValidationError(
                     {
                         "program_director": "Does not Exist. Are you sure the supplied value is a valid UUID"
                     }
                 )
-            attrs["program_director"] = product_director_obj
+            attrs["program_director"] = program_director_obj
         return super().validate(attrs)
 
 
