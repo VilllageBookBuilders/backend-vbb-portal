@@ -1,6 +1,7 @@
 import factory
 from faker import Faker
-from vbb_backend.users.models import User
+import factory
+from vbb_backend.users.models import *
 
 fake = Faker()
 
@@ -16,36 +17,36 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 class MentorFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = User
+        model = Mentor
 
 class ExecutiveFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = User
+        model = Executive
 
 
 class HeadmasterFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = User
+        model = Headmaster
 
 
 class ParentFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = User
+        model = Parent
 
 
 class StudentFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = User
+        model = Student
 
 
 class TeacherFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = User
+        model = Teacher
 
 class ProgramManagerFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = User
+        model = ProgramManager
 
 class ProgramDirectorFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = User
+        model = ProgramDirector
