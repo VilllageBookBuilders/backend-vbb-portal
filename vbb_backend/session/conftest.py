@@ -1,11 +1,11 @@
 import pytest
+from pytest_factoryboy import register
 
-from vbb_backend.session.models import Session
-from vbb_backend.session.tests.factories import SessionFactory
-
-
-@pytest.fixture
-def session_factory() -> SessionFactory:
-    return SessionFactory
+from vbb_backend.session.tests.factories import *
 
 
+register(SessionFactory)
+register(StudentSessionAssociationFactory)
+register(MentorSessionAssociationFactory)
+
+register(SessionMentorStudentFactory)

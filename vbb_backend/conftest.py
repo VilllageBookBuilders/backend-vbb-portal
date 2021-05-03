@@ -1,16 +1,24 @@
 import pytest
 
-from vbb_backend.users.models import User
-from vbb_backend.users.tests.factories import UserFactory
+from pytest_factoryboy import register
 
-
+from vbb_backend.program.tests.factories import SlotFactory, ComputerFactory
+from vbb_backend.users.tests.factories import *
+"""
+This conf file is used by all modules. Only add fixtures
+that span multiple modules.
+"""
 @pytest.fixture(autouse=True)
 def media_storage(settings, tmpdir):
     settings.MEDIA_ROOT = tmpdir.strpath
 
-
-@pytest.fixture
-def user_factory() -> UserFactory:
-    return UserFactory
+register(SlotFactory)
+register(ComputerFactory)
 
 
+register(MentorFactory)
+register(StudentFactory)
+register(TeacherFactory)
+register(HeadmasterFactory)
+register(ProgramManagerFactory)
+register(ProgramDirectorFactory)

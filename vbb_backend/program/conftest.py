@@ -1,12 +1,12 @@
 import pytest
-
-from vbb_backend.program.models import Program
-from vbb_backend.program.tests.factories import ProgramFactory
-
+from pytest_factoryboy import register
+from vbb_backend.program.tests.factories import *
 
 
-@pytest.fixture
-def program_factory() -> ProgramFactory:
-    return ProgramFactory
-
-
+register(ProgramFactory)
+register(HeadmasterWithProgramFactory)
+register(ManagerWithProgramFactory)
+register(TeacherWithProgramFactory)
+register(ComputerFactory)
+register(MentorWithSlotFactory)
+register(StudentWithSlotFactory)
