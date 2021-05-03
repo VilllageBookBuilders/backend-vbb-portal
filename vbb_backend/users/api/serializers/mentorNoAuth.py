@@ -1,12 +1,18 @@
+import random
+import string
+
+from django.db import transaction
 from django.db.models import fields
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
-
 
 from vbb_backend.users.models import Mentor, User, UserTypeEnum
 
-from rest_framework.exceptions import ValidationError
-from django.db import transaction
+
+def random_char(y):
+    return "".join(random.choice(string.ascii_letters) for x in range(y))
+
 
 class MentorNoAuthUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,7 +58,7 @@ class MentorNoAuthSerializer(serializers.ModelSerializer):
                     user["password"] = make_password(user["password"])
                     user = MentorNoAuthUserSerializer(data=user)
                     user.is_valid(raise_exception=True)
-                    instance = user.save()
+                    instance = user.save(email=random_char(20) + "@vbb.com")
                     attrs["user"] = instance
                 except:
                     raise KeyError

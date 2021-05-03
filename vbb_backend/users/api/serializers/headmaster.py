@@ -1,10 +1,16 @@
+import random
+import string
+
+from django.db import transaction
 from django.db.models import fields
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from vbb_backend.users.models import Headmaster, User, UserTypeEnum
 
-from rest_framework.exceptions import ValidationError
-from django.db import transaction
+
+def random_char(y):
+    return "".join(random.choice(string.ascii_letters) for x in range(y))
 
 
 class HeadmasterUserSerializer(serializers.ModelSerializer):
@@ -47,7 +53,7 @@ class HeadmasterSerializer(serializers.ModelSerializer):
             else:
                 user = HeadmasterUserSerializer(data=user)
                 user.is_valid(raise_exception=True)
-                instance = user.save()
+                instance = user.save(email=random_char(20) + "@vbb.com")
                 attrs["user"] = instance
 
             return super().validate(attrs)
