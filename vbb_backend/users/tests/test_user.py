@@ -1,7 +1,7 @@
 import pytest
 
 from django.urls import reverse
-from vbb_backend.users.models import User, UserTypeEnum
+from vbb_backend.users.models import User
 from django.db.utils import IntegrityError
 
 
